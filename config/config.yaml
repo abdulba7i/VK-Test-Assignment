@@ -1,0 +1,32 @@
+env: "local"
+
+# HTTP Server Configuration
+http_server:
+  address: "0.0.0.0:8000"
+  timeout: "10s"
+  idle_timeout: "60s"
+  # Credentials should be moved to environment variables in production
+  user: "${HTTP_USER:-abdu1bari}"  # Default value can be set
+  password: "${HTTP_PASSWORD}"      # Must be set via env
+
+# Database Configuration (PostgreSQL)
+database:
+  host: "${DB_HOST:-127.0.0.1}"
+  port: "${DB_PORT:-5432}"
+  user: "${DB_USER:-postgres}"
+  password: "${DB_PASSWORD:-postgres}"  # Required, no default
+  dbname: "${DB_NAME:-postgres}"
+  sslmode: "disable"
+
+# Migration settings (reuses database credentials)
+migrations:
+  dir: "./migrations"
+  table: "schema_migrations"
+
+  # goose -dir ./migrations postgres "user=postgres password=postgres dbname=postgres host=127.0.0.1 port=5432 sslmode=disable" down
+  # export PATH=$PATH:$(go env GOPATH)/bin
+
+
+  # goose -dir ./internal/storage/postgres/migrations postgres "user=postgres password=postgres dbname=postgres host=127.0.0.1 port=5432 sslmode=disable" down
+
+  # Application environment: local, dev, prod
