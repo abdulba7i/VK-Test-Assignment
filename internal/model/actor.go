@@ -2,14 +2,15 @@ package model
 
 import (
 	"fmt"
+	"time"
 )
 
 // Actor - основная сущность актёра
 type Actor struct {
-	Id          int    `json:"id"`
-	Name        string `json:"name"`
-	Gender      string `json:"gender"`
-	DateOfBirth string `json:"date_of_birth"`
+	Id          int       `json:"id"`
+	Name        string    `json:"name"`
+	Gender      string    `json:"gender"`
+	DateOfBirth time.Time `json:"date_of_birth"`
 }
 
 // Validate - проверка корректности данных актёра

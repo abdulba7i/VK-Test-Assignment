@@ -2,15 +2,16 @@ package model
 
 import (
 	"fmt"
+	"time"
 )
 
 type Film struct {
-	Id          int     `json:"id"`
-	Name        string  `json:"name"`
-	Description string  `json:"description"`
-	Releasedate string  `json:"release_date"`
-	Rating      float32 `json:"rating"`
-	ListActors  []Actor `json:"list_actors"`
+	Id          int       `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Releasedate time.Time `json:"release_date"`
+	Rating      float32   `json:"rating"`
+	ListActors  []Actor   `json:"list_actors"`
 }
 
 // Validate - проверка данных фильма

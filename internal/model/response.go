@@ -11,7 +11,7 @@ type OKResponse struct {
 type ErrorResponse struct {
 	Status  int    `json:"status"`
 	Message string `json:"message"`
-	Code    int    `json:code`
+	Code    int    `json:"code"`
 }
 
 type ActorWithMovies struct {
