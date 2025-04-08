@@ -1,12 +1,13 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 	"film-library/internal/model"
 	"fmt"
 )
 
-func (s *Storage) AddedInfoFilm(film *model.Film) error {
+func (s *Storage) AddedInfoFilm(ctx context.Context, film *model.Film) error {
 	const op = "storage.postgres.AddedInfoFilm"
 
 	// Начинаем транзакцию
@@ -18,7 +19,7 @@ func (s *Storage) AddedInfoFilm(film *model.Film) error {
 
 	// Добавляем фильм
 	var filmID int
-	err = tx.QueryRow(`
+	err = tx.QueryRowContext(ctx, `
         INSERT INTO films (name, description, release_date, rating)
         VALUES ($1, $2, $3, $4)
         RETURNING id`,
@@ -74,12 +75,12 @@ func (s *Storage) AddedInfoFilm(film *model.Film) error {
 	return nil
 }
 
-func (s *Storage) UpdateFilm(film *model.Film) error {
+func (s *Storage) UpdateFilm(ctx context.Context, film *model.Film) error {
 	const op = "storage.postgres.ChangeInfoFilm"
 
 	query := `UPDATE films SET name = $1, description = $2, release_date = $3, rating = $4 WHERE id = $5`
 
-	_, err := s.db.Exec(query, film.Name, film.Description, film.Releasedate, film.Rating, film.Id)
+	_, err := s.db.ExecContext(ctx, query, film.Name, film.Description, film.Releasedate, film.Rating, film.Id)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
@@ -87,12 +88,12 @@ func (s *Storage) UpdateFilm(film *model.Film) error {
 	return nil
 }
 
-func (s *Storage) DeleteInfoFilm(id int) error {
+func (s *Storage) DeleteInfoFilm(ctx context.Context, id int) error {
 	const op = "storage.postgres.DeleteInfoFilm"
 
 	query := `DELETE FROM films WHERE id = $1`
 
-	_, err := s.db.Exec(query, id)
+	_, err := s.db.ExecContext(ctx, query, id)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}

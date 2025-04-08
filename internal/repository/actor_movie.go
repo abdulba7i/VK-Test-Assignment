@@ -1,12 +1,13 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 	"film-library/internal/model"
 	"fmt"
 )
 
-func (s *Storage) GetAllFilms(sortBy string) ([]model.Film, error) {
+func (s *Storage) GetAllFilms(ctx context.Context, sortBy string) ([]model.Film, error) {
 	const op = "storage.postgres.GetAllFilms"
 
 	orderClause := "ORDER BY rating DESC" // По умолчанию сортировка по рейтингу
@@ -25,7 +26,7 @@ func (s *Storage) GetAllFilms(sortBy string) ([]model.Film, error) {
         JOIN actors a ON a.id = af.actor_id
         %s`, orderClause)
 
-	rows, err := s.db.Query(query)
+	rows, err := s.db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -64,7 +65,7 @@ func (s *Storage) GetAllFilms(sortBy string) ([]model.Film, error) {
 	return films, nil
 }
 
-func (s *Storage) SearchFilm(actor, film string) (model.Film, error) {
+func (s *Storage) SearchFilm(ctx context.Context, actor, film string) (model.Film, error) {
 	const op = "storage.postgres.SearchFilm"
 
 	// Ищем фильмы по фрагменту названия
@@ -76,7 +77,7 @@ func (s *Storage) SearchFilm(actor, film string) (model.Film, error) {
         JOIN actors a ON a.id = af.actor_id
         WHERE f.name ILIKE $1 AND a.name ILIKE $2`
 
-	rows, err := s.db.Query(query, "%"+film+"%", "%"+actor+"%")
+	rows, err := s.db.QueryContext(ctx, query, "%"+film+"%", "%"+actor+"%")
 	if err != nil {
 		return model.Film{}, fmt.Errorf("%s: %w", op, err)
 	}
@@ -121,7 +122,7 @@ func (s *Storage) SearchFilm(actor, film string) (model.Film, error) {
 	return filmFound, nil
 }
 
-func (s *Storage) GetActorsWithFilms() (map[int]model.ActorWithFilms, error) {
+func (s *Storage) GetActorsWithFilms(ctx context.Context) (map[int]model.ActorWithFilms, error) {
 	const op = "storage.postgres.GetActorsWithFilms"
 
 	query := `
@@ -131,7 +132,7 @@ func (s *Storage) GetActorsWithFilms() (map[int]model.ActorWithFilms, error) {
         JOIN actor_film af ON a.id = af.actor_id
         JOIN films f ON f.id = af.film_id`
 
-	rows, err := s.db.Query(query)
+	rows, err := s.db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
