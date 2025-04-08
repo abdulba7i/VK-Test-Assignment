@@ -6,6 +6,13 @@ import (
 	"fmt"
 )
 
+type ActorRepository interface {
+	AddedInfoActor(ctx context.Context, actor *model.Actor) error
+	UpdateActor(ctx context.Context, actor *model.Actor) error
+	DeleteInfoActor(ctx context.Context, id int) error
+	ActorExistsById(ctx context.Context, id int) (bool, error)
+}
+
 func (s *Storage) AddedInfoActor(ctx context.Context, actor *model.Actor) error {
 	const op = "storage.postgres.AddedInfoActor"
 
@@ -40,4 +47,21 @@ func (s *Storage) DeleteInfoActor(ctx context.Context, id int) error {
 	}
 
 	return nil
+}
+
+// вспомогательная функция для сервиса, чтобы проверять наличие актера в бд
+
+func (s *Storage) ActorExistsById(ctx context.Context, id int) (bool, error) {
+	const op = "storage.postgres.ActorExistsById"
+
+	var exists bool
+
+	query := `SELECT EXISTS(SELECT 1 FROM actors WHERE id = $1)`
+
+	err := s.db.QueryRowContext(ctx, query, id).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return true, nil
 }

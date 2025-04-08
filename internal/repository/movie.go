@@ -7,6 +7,12 @@ import (
 	"fmt"
 )
 
+type FilmRepository interface {
+	AddedInfoFilm(ctx context.Context, film *model.Film) error
+	UpdateFilm(ctx context.Context, film *model.Film) error
+	DeleteInfoFilm(ctx context.Context, id int) error
+}
+
 func (s *Storage) AddedInfoFilm(ctx context.Context, film *model.Film) error {
 	const op = "storage.postgres.AddedInfoFilm"
 

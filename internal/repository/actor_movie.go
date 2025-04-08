@@ -7,6 +7,12 @@ import (
 	"fmt"
 )
 
+type ActorMovieRepository interface {
+	GetAllFilms(ctx context.Context, sortBy string) ([]model.Film, error)
+	SearchFilm(ctx context.Context, actor, film string) (model.Film, error)
+	GetActorsWithFilms(ctx context.Context) (map[int]model.ActorWithFilms, error)
+}
+
 func (s *Storage) GetAllFilms(ctx context.Context, sortBy string) ([]model.Film, error) {
 	const op = "storage.postgres.GetAllFilms"
 
