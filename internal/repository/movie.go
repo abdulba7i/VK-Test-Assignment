@@ -8,12 +8,12 @@ import (
 )
 
 type FilmRepository interface {
-	AddedInfoFilm(ctx context.Context, film *model.Film) error
+	CreateFilm(ctx context.Context, film *model.Film) error
 	UpdateFilm(ctx context.Context, film *model.Film) error
-	DeleteInfoFilm(ctx context.Context, id int) error
+	DeleteFilm(ctx context.Context, id int) error
 }
 
-func (s *Storage) AddedInfoFilm(ctx context.Context, film *model.Film) error {
+func (s *Storage) CreateFilm(ctx context.Context, film *model.Film) error {
 	const op = "storage.postgres.AddedInfoFilm"
 
 	// Начинаем транзакцию
@@ -94,7 +94,7 @@ func (s *Storage) UpdateFilm(ctx context.Context, film *model.Film) error {
 	return nil
 }
 
-func (s *Storage) DeleteInfoFilm(ctx context.Context, id int) error {
+func (s *Storage) DeleteFilm(ctx context.Context, id int) error {
 	const op = "storage.postgres.DeleteInfoFilm"
 
 	query := `DELETE FROM films WHERE id = $1`
