@@ -72,14 +72,14 @@ func (h *ActorHandler) UpdateActor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.service.UpdateActor(r.Context(), actor)
-	if err != nil {
-		http.Error(w, "Failed to update actor", http.StatusInternalServerError)
+	if err := actor.Validate(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if err := actor.Validate(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	err := h.service.UpdateActor(r.Context(), actor)
+	if err != nil {
+		http.Error(w, "Failed to update actor", http.StatusInternalServerError)
 		return
 	}
 

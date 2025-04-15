@@ -7,10 +7,18 @@ import (
 	"fmt"
 )
 
-type FilmRepository interface {
+type MovieRepository interface {
 	CreateFilm(ctx context.Context, film *model.Film) error
 	UpdateFilm(ctx context.Context, film *model.Film) error
 	DeleteFilm(ctx context.Context, id int) error
+	MovieExistsById(ctx context.Context, id int) (bool, error)
+	MovieExistsByName(ctx context.Context, name string) (bool, error)
+}
+
+func NewMovieRepository(db *sql.DB) MovieRepository {
+	return &Storage{
+		db: db,
+	}
 }
 
 func (s *Storage) CreateFilm(ctx context.Context, film *model.Film) error {
@@ -105,4 +113,34 @@ func (s *Storage) DeleteFilm(ctx context.Context, id int) error {
 	}
 
 	return nil
+}
+
+func (s *Storage) MovieExistsById(ctx context.Context, id int) (bool, error) {
+	const op = "storage.postgres.ActorExistsById"
+
+	var exists bool
+
+	query := `SELECT EXISTS(SELECT 1 FROM films WHERE id = $1)`
+
+	err := s.db.QueryRowContext(ctx, query, id).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return true, nil
+}
+
+func (s *Storage) MovieExistsByName(ctx context.Context, name string) (bool, error) {
+	const op = "storage.postgres.ActorExistsByName"
+
+	var exists bool
+
+	query := `SELECT EXISTS(SELECT 1 FROM films WHERE name = $1)`
+
+	err := s.db.QueryRowContext(ctx, query, name).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return true, nil
 }
