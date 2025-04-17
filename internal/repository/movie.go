@@ -11,8 +11,8 @@ type MovieRepository interface {
 	CreateFilm(ctx context.Context, film *model.Film) error
 	UpdateFilm(ctx context.Context, film *model.Film) error
 	DeleteFilm(ctx context.Context, id int) error
-	GetAllFilms(ctx context.Context, sortBy string) ([]model.Film, error)
-	SearchFilm(ctx context.Context, actor, film string) (model.Film, error)
+	GetAllFilms(ctx context.Context, sortBy string) ([]model.Film, error)   // получение списка фильмов
+	SearchFilm(ctx context.Context, actor, film string) (model.Film, error) // поиск фильмов
 	MovieExistsById(ctx context.Context, id int) (bool, error)
 	MovieExistsByName(ctx context.Context, name string) (bool, error)
 }
@@ -120,14 +120,15 @@ func (s *Storage) DeleteFilm(ctx context.Context, id int) error {
 func (s *Storage) GetAllFilms(ctx context.Context, sortBy string) ([]model.Film, error) {
 	const op = "storage.postgres.GetAllFilms"
 
-	orderClause := "ORDER BY rating DESC" // По умолчанию сортировка по рейтингу
+	orderClause := "ORDER BY f.rating DESC" // По умолчанию сортировка по рейтингу
 	switch sortBy {
 	case "name":
-		orderClause = "ORDER BY name"
+		orderClause = "ORDER BY f.name ASC" // Явно указываем таблицу films
 	case "release_date":
-		orderClause = "ORDER BY release_date"
+		orderClause = "ORDER BY f.release_date"
 	}
 
+	// Остальной код остается без изменений
 	query := fmt.Sprintf(`
         SELECT f.id, f.name, f.description, f.release_date, f.rating, 
                a.id, a.name, a.gender, a.date_of_birth
@@ -178,58 +179,59 @@ func (s *Storage) GetAllFilms(ctx context.Context, sortBy string) ([]model.Film,
 func (s *Storage) SearchFilm(ctx context.Context, actor, film string) (model.Film, error) {
 	const op = "storage.postgres.SearchFilm"
 
-	// Ищем фильмы по фрагменту названия
 	query := `
-        SELECT f.id, f.name, f.description, f.release_date, f.rating, 
-               a.id, a.name, a.gender, a.date_of_birth
+        SELECT 
+            f.id, f.name, f.description, f.release_date, f.rating,
+            a.id, a.name, a.gender, a.date_of_birth
         FROM films f
         JOIN actor_film af ON f.id = af.film_id
-        JOIN actors a ON a.id = af.actor_id
-        WHERE f.name ILIKE $1 AND a.name ILIKE $2`
+        JOIN actors a ON af.actor_id = a.id
+        WHERE a.name ILIKE $1 AND f.name ILIKE $2
+        ORDER BY f.id` // Сортируем по ID фильма для группировки
 
-	rows, err := s.db.QueryContext(ctx, query, "%"+film+"%", "%"+actor+"%")
+	rows, err := s.db.QueryContext(ctx, query, "%"+actor+"%", "%"+film+"%")
 	if err != nil {
 		return model.Film{}, fmt.Errorf("%s: %w", op, err)
 	}
 	defer rows.Close()
 
 	var filmFound model.Film
-	filmFound.ListActors = []model.Actor{} // Инициализация списка актёров
+	filmFound.ListActors = make([]model.Actor, 0)
 
 	for rows.Next() {
-		var foundActor model.Actor
+		var currentActor model.Actor
 
-		// Если фильм ещё не найден, заполняем его данные
-		if filmFound.Id == 0 {
-			err = rows.Scan(
-				&filmFound.Id, &filmFound.Name, &filmFound.Description,
-				&filmFound.Releasedate, &filmFound.Rating,
-				&foundActor.Id, &foundActor.Name, &foundActor.Gender, &foundActor.DateOfBirth,
-			)
-			if err != nil {
-				return model.Film{}, fmt.Errorf("%s: %w", op, err)
-			}
-		} else {
-			// Если фильм уже найден, сканируем только актёра
-			err = rows.Scan(
-				nil, nil, nil, nil, nil, // Пропускаем поля фильма
-				&foundActor.Id, &foundActor.Name, &foundActor.Gender, &foundActor.DateOfBirth,
-			)
-			if err != nil {
-				return model.Film{}, fmt.Errorf("%s: %w", op, err)
-			}
+		err := rows.Scan(
+			&filmFound.Id, &filmFound.Name, &filmFound.Description,
+			&filmFound.Releasedate, &filmFound.Rating,
+			&currentActor.Id, &currentActor.Name,
+			&currentActor.Gender, &currentActor.DateOfBirth,
+		)
+		if err != nil {
+			return model.Film{}, fmt.Errorf("%s: scan error: %w", op, err)
 		}
 
-		// Добавляем актёра к фильму
-		filmFound.ListActors = append(filmFound.ListActors, foundActor)
+		// Добавляем актёра только если он ещё не добавлен
+		if !containsActor(filmFound.ListActors, currentActor.Id) {
+			filmFound.ListActors = append(filmFound.ListActors, currentActor)
+		}
 	}
 
-	// Если фильм не найден, возвращаем ошибку
 	if filmFound.Id == 0 {
 		return model.Film{}, sql.ErrNoRows
 	}
 
 	return filmFound, nil
+}
+
+// Вспомогательная функция для проверки дубликатов актёров
+func containsActor(actors []model.Actor, actorID int) bool {
+	for _, a := range actors {
+		if a.Id == actorID {
+			return true
+		}
+	}
+	return false
 }
 
 func (s *Storage) MovieExistsById(ctx context.Context, id int) (bool, error) {
