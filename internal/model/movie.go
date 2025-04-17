@@ -28,7 +28,7 @@ func (f *Film) Validate() error {
 	return nil
 }
 
-func (a *Film) ValidateSortFilm(sortBy string) error {
+func ValidateSortFilm(sortBy string) error {
 	if sortBy != "name" && sortBy != "release_date" && sortBy != "" {
 		return fmt.Errorf("Некорректная сортировка")
 	}

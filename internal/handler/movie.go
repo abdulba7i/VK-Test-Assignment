@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"film-library/internal/model"
 	"film-library/internal/service"
+	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 type MovieHandler struct {
@@ -16,7 +18,17 @@ func NewMovieHandler(service service.MovieService) MovieHandler {
 	return MovieHandler{service: service}
 }
 
-func (h *MovieHandler) HandleMovies(w http.ResponseWriter, r *http.Request) {
+func (h *MovieHandler) HandleMovieGet(w http.ResponseWriter, r *http.Request) {
+	switch {
+	case r.URL.Path == "/films_get_list" && r.Method == http.MethodGet:
+		h.GetAllFilms(w, r)
+	case r.URL.Path == "/films/search" && r.Method == http.MethodGet:
+		h.SearchFilm(w, r)
+	default:
+		http.Error(w, "Method not allowed", http.StatusNotFound)
+	}
+}
+func (h *MovieHandler) HandleMoviePost(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
 		h.CreateFilm(w, r)
@@ -25,7 +37,7 @@ func (h *MovieHandler) HandleMovies(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *MovieHandler) HandleMovie(w http.ResponseWriter, r *http.Request) {
+func (h *MovieHandler) HandleMoviePut(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPut:
 		h.UpdateFilm(w, r)
@@ -97,12 +109,47 @@ func (h *MovieHandler) DeleteFilm(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *MovieHandler) GetAllFilms(w http.ResponseWriter, r *http.Request) {
-	// var listFilms []model.Film
-	// sortBy := r.URL.Query().Get("sort_by")
+	var listFilms []model.Film
+	sortBy := r.URL.Query().Get("sort_by")
 
-	// if err := listFilms.ValidateSortFilm(sortBy); err != nil {
-	// 	http.Error(w, err.Error(), http.StatusBadRequest)
+	if err := model.ValidateSortFilm(sortBy); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	listFilms, err := h.service.GetFilms(r.Context(), sortBy)
+	if err != nil {
+		http.Error(w, "Failed to get films", http.StatusInternalServerError)
+		fmt.Println(err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(listFilms)
+}
+
+func (h *MovieHandler) SearchFilm(w http.ResponseWriter, r *http.Request) {
+	var filmSearch model.Film
+
+	actor, movie := strings.TrimSpace(r.URL.Query().Get("actor")), strings.TrimSpace(r.URL.Query().Get("movie"))
+
+	if err := filmSearch.ValidateFilmSearchParams(movie, actor); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	films, err := h.service.SearchFilm(r.Context(), actor, movie)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Search failed: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// if (films == model.Film{}) {
+	// 	w.WriteHeader(http.StatusNotFound)
 	// 	return
 	// }
 
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(films)
 }

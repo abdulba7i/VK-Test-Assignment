@@ -53,11 +53,13 @@ func main() {
 
 	//
 
-	http.HandleFunc("/actors", actorHandler.HandleActors)
-	http.HandleFunc("/actor/", actorHandler.HandleActor)
+	http.HandleFunc("/actors", actorHandler.HandleActorPost)
+	http.HandleFunc("/actor/", actorHandler.HandleActorPut)
 
-	http.HandleFunc("/films", movieHandler.HandleMovies)
-	http.HandleFunc("/film/", movieHandler.HandleMovie)
+	http.HandleFunc("/films_get_list", movieHandler.GetAllFilms) // GET /films
+	http.HandleFunc("/films/search", movieHandler.SearchFilm)    // GET /films/search
+	http.HandleFunc("/films", movieHandler.HandleMoviePost)
+	http.HandleFunc("/film/", movieHandler.HandleMoviePut)
 
 	err = http.ListenAndServe(":8080", nil)
 	if err != nil {
@@ -67,6 +69,7 @@ func main() {
 	_ = storage
 }
 
+// http://localhost:8080/films/search?actor=Рози Хантингтон-Уайтли&movie=Трансформеры 3: Тёмная сторона Луны
 func setupLogger(env string) *slog.Logger {
 	var log *slog.Logger
 	switch env {
@@ -98,99 +101,3 @@ func setupPrettySlog() *slog.Logger {
 
 	return slog.New(handler)
 }
-
-// actor1 := model.Actor{
-// 	Name:        "Кама Пуля",
-// 	Gender:      "female",
-// 	DateOfBirth: "1111-11-11",
-// }
-// actor2 := model.Actor{
-// 	Name:        "Рози Хантингтон-Уайтли",
-// 	Gender:      "female",
-// 	DateOfBirth: "1987-04-18",
-// }
-// actor3 := model.Actor{
-// 	Name:        "Вин Дизель",
-// 	Gender:      "male",
-// 	DateOfBirth: "1967-07-18",
-// }
-// actor4 := model.Actor{
-// 	Name:        "Мага Лезгин",
-// 	Gender:      "male",
-// 	DateOfBirth: "2222-12-22",
-// }
-
-// film := model.Film{
-// 	Id:          1,
-// 	Name:        "Пчеловод",
-// 	Description: "Фантастическая история о компании неудачников, которые еще вчера жили в унылом мире и даже не подозревали, что однажды все перевернется с ног на голову",
-// 	Releasedate: "2024-01-12",
-// 	Rating:      8.3,
-// 	ListActors: []model.Actor{
-// 		actor1,
-// 		actor4,
-// 	},
-// }
-// film2 := model.Film{
-// 	Name:        "Трансформеры 3: Тёмная сторона Луны",
-// 	Description: "Сэм Уитвики должен снова спасти мир от десептиконов, которые на этот раз хотят использовать секретную технологию, спрятанную на Луне.",
-// 	Releasedate: "2011-06-23",
-// 	Rating:      9.2,
-// 	ListActors: []model.Actor{
-// 		actor2, // Рози Хантингтон-Уайтли
-// 	},
-// }
-// film3 := model.Film{
-// 	Id:          3,
-// 	Name:        "Форсаж",
-// 	Description: "Под прикрытием гонок Брайан О’Коннер должен внедриться в банду Доминика Торетто.",
-// 	Releasedate: "2001-06-22",
-// 	Rating:      8.5,
-// 	ListActors: []model.Actor{
-// 		actor3, // Вин Дизель
-// 	},
-// }
-// film4 := model.Film{
-// 	Id:          4,
-// 	Name:        "Форсаж 5",
-// 	Description: "Доминик Торрето и его команда, находясь в бегах, планируют последнее ограбление в Рио-де-Жанейро.",
-// 	Releasedate: "2011-04-15",
-// 	Rating:      9.0,
-// 	ListActors: []model.Actor{
-// 		actor3, // Вин Дизель
-// 		actor1, // Джейсон Стэтхем
-// 	},
-// }
-
-// err = storage.AddedInfoFilm(&film)
-// if err != nil {
-// 	log.Error("Ошибка при получении списка актёров", "error", err)
-// 	os.Exit(1)
-// }
-// err = storage.AddedInfoFilm(&film2)
-// if err != nil {
-// 	log.Error("Ошибка при получении списка актёров", "error", err)
-// 	os.Exit(1)
-// }
-// err = storage.AddedInfoFilm(&film3)
-// if err != nil {
-// 	log.Error("Ошибка при получении списка актёров", "error", err)
-// 	os.Exit(1)
-// }
-// err = storage.AddedInfoFilm(&film4)
-// if err != nil {
-// 	log.Error("Ошибка при получении списка актёров", "error", err)
-// 	os.Exit(1)
-// }
-
-// actorsWithFilms, err := storage.GetActorsWithFilms()
-// if err != nil {
-// 	log.Error("Ошибка при получении списка актёров", "error", err)
-// 	os.Exit(1)
-// }
-// for _, actorWithFilms := range actorsWithFilms {
-// 	log.Info("Актёр", "actor", actorWithFilms.Actor)
-// 	for _, film := range actorWithFilms.Films {
-// 		log.Info("  Фильм", "film", film)
-// 	}
-// }

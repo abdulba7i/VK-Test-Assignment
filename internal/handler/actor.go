@@ -22,7 +22,7 @@ func NewActorHandler(service service.ActorService) ActorHandler {
 	return ActorHandler{service: service}
 }
 
-func (h *ActorHandler) HandleActors(w http.ResponseWriter, r *http.Request) {
+func (h *ActorHandler) HandleActorPost(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
 		h.CreateActor(w, r)
@@ -31,7 +31,7 @@ func (h *ActorHandler) HandleActors(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *ActorHandler) HandleActor(w http.ResponseWriter, r *http.Request) {
+func (h *ActorHandler) HandleActorPut(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPut:
 		h.UpdateActor(w, r)
