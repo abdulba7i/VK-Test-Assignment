@@ -27,3 +27,36 @@ func (f *Film) Validate() error {
 	}
 	return nil
 }
+
+func (a *Film) ValidateSortFilm(sortBy string) error {
+	if sortBy != "name" && sortBy != "release_date" && sortBy != "" {
+		return fmt.Errorf("Некорректная сортировка")
+	}
+	return nil
+}
+
+func (a *Film) ValidateFilmSearchParams(filmName, actorName string) error {
+	if filmName == "" && actorName == "" {
+		return fmt.Errorf("необходимо указать либо название фильма, либо имя актёра")
+	}
+
+	if filmName != "" {
+		if len(filmName) > 150 {
+			return fmt.Errorf("название фильма слишком длинное (макс. 150 символов)")
+		}
+		if len(filmName) < 2 {
+			return fmt.Errorf("название фильма слишком короткое (мин. 2 символа)")
+		}
+	}
+
+	if actorName != "" {
+		if len(actorName) > 100 {
+			return fmt.Errorf("имя актёра слишком длинное (макс. 100 символов)")
+		}
+		if len(actorName) < 2 {
+			return fmt.Errorf("имя актёра слишком короткое (мин. 2 символа)")
+		}
+	}
+
+	return nil
+}

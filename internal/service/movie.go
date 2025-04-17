@@ -50,3 +50,29 @@ func (s *MovieService) DeleteMovie(ctx context.Context, id int) error {
 
 	return s.repo.DeleteFilm(ctx, id)
 }
+
+func (s *MovieService) GetFilms(ctx context.Context, sortBy string) ([]model.Film, error) {
+	data, err := s.repo.GetAllFilms(ctx, sortBy)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get actors: %w", err)
+	}
+
+	if len(data) == 0 {
+		return []model.Film{}, nil
+	}
+
+	return data, nil
+}
+
+func (s *MovieService) SearchFilm(ctx context.Context, actor, film string) (model.Film, error) {
+	films, err := s.repo.SearchFilm(ctx, actor, film)
+	if err != nil {
+		return model.Film{}, fmt.Errorf("ошибка поиска: %w", err)
+	}
+
+	if len(films.ListActors) == 0 {
+		return model.Film{}, nil
+	}
+
+	return films, nil
+}

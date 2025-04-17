@@ -95,3 +95,14 @@ func (h *MovieHandler) DeleteFilm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func (h *MovieHandler) GetAllFilms(w http.ResponseWriter, r *http.Request) {
+	// var listFilms []model.Film
+	// sortBy := r.URL.Query().Get("sort_by")
+
+	// if err := listFilms.ValidateSortFilm(sortBy); err != nil {
+	// 	http.Error(w, err.Error(), http.StatusBadRequest)
+	// 	return
+	// }
+
+}
