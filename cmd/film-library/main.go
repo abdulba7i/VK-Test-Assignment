@@ -43,23 +43,36 @@ func main() {
 		os.Exit(1)
 	}
 
-	//
+	// Actor
 
 	actorService := service.NewActorService(storage)
 	actorHandler := handler.NewActorHandler(*actorService)
 
+	// Movie
+
 	movieService := service.NewMovieService(storage)
 	movieHandler := handler.NewMovieHandler(*movieService)
+
+	// ActorMovie
+
+	actormovieService := service.NewActorMovieService(storage)
+	actormovieHandler := handler.NewActorMovieHandler(*actormovieService)
 
 	//
 
 	http.HandleFunc("/actors", actorHandler.HandleActorPost)
 	http.HandleFunc("/actor/", actorHandler.HandleActorPut)
 
-	http.HandleFunc("/films_get_list", movieHandler.GetAllFilms) // GET /films
-	http.HandleFunc("/films/search", movieHandler.SearchFilm)    // GET /films/search
+	//
+
 	http.HandleFunc("/films", movieHandler.HandleMoviePost)
 	http.HandleFunc("/film/", movieHandler.HandleMoviePut)
+	http.HandleFunc("/films_get_list", movieHandler.GetAllFilms) // GET /films
+	http.HandleFunc("/films/search", movieHandler.SearchFilm)    // GET /films/search
+
+	//
+
+	http.HandleFunc("/actors_films", actormovieHandler.HandleActorMovieGet)
 
 	err = http.ListenAndServe(":8080", nil)
 	if err != nil {

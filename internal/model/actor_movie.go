@@ -5,7 +5,7 @@ type ActorWithFilms struct {
 	Films []Film `json:"films"`
 }
 
-func (a *ActorWithFilms) ValidateGetActors() error {
+func ValidateGetActors() error {
 	// TODO ... ДОБАВИТЬ ВАЛИДАЦИЮ, ЕСЛИ В ЭТОМ ЕСТЬ НЕОБХОДИМОСТЬ
 	return nil
 }

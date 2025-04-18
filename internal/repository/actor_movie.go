@@ -2,12 +2,19 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 	"film-library/internal/model"
 	"fmt"
 )
 
 type ActorMovieRepository interface {
 	GetActorsWithFilms(ctx context.Context) (map[int]model.ActorWithFilms, error)
+}
+
+func NewActorMovieRepository(db *sql.DB) MovieRepository {
+	return &Storage{
+		db: db,
+	}
 }
 
 func (s *Storage) GetActorsWithFilms(ctx context.Context) (map[int]model.ActorWithFilms, error) {
