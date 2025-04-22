@@ -58,6 +58,11 @@ func main() {
 	actormovieService := service.NewActorMovieService(storage)
 	actormovieHandler := handler.NewActorMovieHandler(*actormovieService)
 
+	// Auth
+	secret := os.Getenv("SECRET_KEY")
+	authService := service.NewAuthService(storage, secret)
+	authHandler := handler.NewAuthHandler(*authService)
+
 	//
 
 	http.HandleFunc("/actors", actorHandler.HandleActorPost)
@@ -73,6 +78,13 @@ func main() {
 	//
 
 	http.HandleFunc("/actors_films", actormovieHandler.HandleActorMovieGet)
+
+	//
+
+	http.HandleFunc("/sign_up", authHandler.HandleAuthPost)
+	http.HandleFunc("/sign_in", authHandler.HandleAuthPost)
+
+	//
 
 	err = http.ListenAndServe(":8080", nil)
 	if err != nil {

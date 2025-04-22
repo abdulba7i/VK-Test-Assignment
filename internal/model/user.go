@@ -1,13 +1,12 @@
 package model
 
-import "time"
+import "github.com/golang-jwt/jwt/v5"
 
 type User struct {
-	ID       int      `json:"id" db:"id"`
-	Username string   `json:"username" db:"username"`
-	Password string   `json:"-" db:"password"` // Пароль исключён из JSON (не возвращаем клиенту)
-	Role     UserRole `json:"role" db:"role"`
-	// CreatedAt time.Time `json:"created_at" db:"created_at"`
+	ID       int    `json:"id" db:"id"`
+	Username string `json:"username" db:"username"`
+	Password string `json:"-" db:"password"`
+	Role     int    `json:"role" db:"role"`
 }
 
 // UserRole — тип роли пользователя (обычный пользователь или администратор)
@@ -18,13 +17,13 @@ const (
 	RoleAdmin UserRole = "admin"
 )
 
-// регистрация
+// РЕГИСТРАЦИЯ
 type SignUpRequest struct {
 	Username string `json:"username" validate:"required,min=3,max=50"`
 	Password string `json:"password" validate:"required,min=8"`
 }
 
-// Заход
+// ВХОД
 type SignInRequest struct {
 	Username string `json:"username" validate:"required"`
 	Password string `json:"password" validate:"required"`
@@ -38,10 +37,9 @@ type UpdateUserRequest struct {
 }
 
 type UserResponse struct {
-	ID        int       `json:"id"`
-	Username  string    `json:"username"`
-	Role      UserRole  `json:"role"`
-	CreatedAt time.Time `json:"created_at"`
+	ID       int    `json:"id"`
+	Username string `json:"username"`
+	Role     int    `json:"role"`
 }
 
 type AuthResponse struct {
@@ -51,8 +49,9 @@ type AuthResponse struct {
 
 // JWT-данные (хранятся в токене)
 type TokenClaims struct {
-	UserID int      `json:"user_id"`
-	Role   UserRole `json:"role"`
+	UserID int `json:"user_id"`
+	Role   int `json:"role"`
+	jwt.RegisteredClaims
 }
 
 // Права доступа (для middleware)

@@ -5,14 +5,9 @@ import (
 	"film-library/internal/model"
 	"strconv"
 
-	// resp "film-library/internal/response"
 	"film-library/internal/service"
 	"net/http"
 )
-
-// type Response struct {
-// 	resp.Response
-// }
 
 type ActorHandler struct {
 	service service.ActorService
