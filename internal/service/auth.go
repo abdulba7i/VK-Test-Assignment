@@ -41,6 +41,7 @@ func (s *AuthService) CreateUser(ctx context.Context, user model.User) (string, 
 		jwt.MapClaims{
 			"user_id":  user.ID,
 			"username": user.Username,
+			"role":     user.Role,
 			"exp":      time.Now().Add(tokenTTL).Unix(),
 		})
 
@@ -66,6 +67,7 @@ func (s *AuthService) VerifyUser(ctx context.Context, username, password string)
 		jwt.MapClaims{
 			"user_id":  user.ID,
 			"username": user.Username,
+			"role":     user.Role,
 			"exp":      time.Now().Add(24 * time.Hour).Unix(),
 		})
 

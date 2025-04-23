@@ -10,11 +10,12 @@ type User struct {
 }
 
 // UserRole — тип роли пользователя (обычный пользователь или администратор)
-type UserRole string
+// type UserRole string
+type UserRole int
 
 const (
-	RoleUser  UserRole = "user"
-	RoleAdmin UserRole = "admin"
+	RoleUser  UserRole = 1
+	RoleAdmin UserRole = 2
 )
 
 // РЕГИСТРАЦИЯ

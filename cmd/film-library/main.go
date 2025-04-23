@@ -86,6 +86,10 @@ func main() {
 
 	//
 
+	// http.HandleFunc("/user-data", middleware.RequireRole([]byte(secret), int(model.RoleAdmin))(UserDataHandler))
+	// http.HandleFunc("/admin-only", middleware.RequireRole([]byte(secret), int(model.RoleUser))(AdminHandler))
+
+	//
 	err = http.ListenAndServe(":8080", nil)
 	if err != nil {
 		log.Error("failed to start server", "error", err)
