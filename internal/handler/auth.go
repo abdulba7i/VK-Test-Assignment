@@ -27,11 +27,18 @@ func (h *AuthHandler) HandleAuthPost(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func (h *AuthHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
-	var user model.User
+	// var user model.User
+	var req model.SignUpRequest
 
-	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
+	}
+
+	user := model.User{
+		Username: req.Username,
+		Password: req.Password,
+		Role:     req.Role,
 	}
 
 	// ВАЖНО: проверяем обязательные поля

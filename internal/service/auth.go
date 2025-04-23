@@ -58,9 +58,6 @@ func (s *AuthService) VerifyUser(ctx context.Context, username, password string)
 		return "", nil, fmt.Errorf("failed to verify user: %w", err)
 	}
 
-	fmt.Println("Plain password:", password)
-	fmt.Println("Hashed password from DB:", user.Password)
-
 	if !checkPasswordHash(password, user.Password) {
 		return "", nil, fmt.Errorf("invalid credentials")
 	}
@@ -99,12 +96,6 @@ func (s *AuthService) VerifyToken(tokenString string) (*model.TokenClaims, error
 }
 
 //
-
-// func hashPassword(password string) (string, error) {
-// 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-
-// 	return string(bytes), err
-// }
 
 func hashPassword(password string) (string, error) {
 	fmt.Println("Password to hash:", fmt.Sprintf("%q", password)) // добавил %q чтобы увидеть пробелы
