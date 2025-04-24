@@ -11,6 +11,8 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/joho/godotenv"
 )
@@ -90,10 +92,22 @@ func main() {
 	// http.HandleFunc("/admin-only", middleware.RequireRole([]byte(secret), int(model.RoleUser))(AdminHandler))
 
 	//
-	err = http.ListenAndServe(":8080", nil)
-	if err != nil {
-		log.Error("failed to start server", "error", err)
-	}
+
+	go func() {
+		err = http.ListenAndServe(":8080", nil)
+		if err != nil {
+			log.Error("failed to start server", "error", err)
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
+	<-quit
+
+	// err = http.ListenAndServe(":8080", nil)
+	// if err != nil {
+	// 	log.Error("failed to start server", "error", err)
+	// }
 
 	_ = storage
 }
