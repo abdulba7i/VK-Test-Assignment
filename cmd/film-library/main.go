@@ -3,6 +3,7 @@ package main
 import (
 	"film-library/internal/config"
 	"film-library/internal/handler"
+	"film-library/internal/middleware"
 	"film-library/internal/repository"
 	"film-library/internal/service"
 	slogpretty "film-library/internal/utils/handlers"
@@ -67,19 +68,21 @@ func main() {
 
 	//
 
-	http.HandleFunc("/actors", actorHandler.HandleActorPost)
-	http.HandleFunc("/actor/", actorHandler.HandleActorPut)
+	http.HandleFunc("/actors", middleware.RequireAuth([]byte(secret))(actorHandler.HandleActorPost)) // create actor
+	http.HandleFunc("/actor/", middleware.RequireAuth([]byte(secret))(actorHandler.HandleActorPut))  // update actor
 
 	//
 
-	http.HandleFunc("/films", movieHandler.HandleMoviePost)
-	http.HandleFunc("/film/", movieHandler.HandleMoviePut)
-	http.HandleFunc("/films_get_list", movieHandler.GetAllFilms) // GET /films
-	http.HandleFunc("/films/search", movieHandler.SearchFilm)    // GET /films/search
+	http.HandleFunc("/films", middleware.RequireAuth([]byte(secret))(movieHandler.HandleMoviePost))
+	http.HandleFunc("/film/", middleware.RequireAuth([]byte(secret))(movieHandler.HandleMoviePut))
+
+	http.HandleFunc("/films_get_list", middleware.RequireAuth([]byte(secret))(movieHandler.GetAllFilms)) // GET /films
+
+	http.HandleFunc("/films/search", middleware.RequireAuth([]byte(secret))(movieHandler.SearchFilm)) // GET /films/search
 
 	//
 
-	http.HandleFunc("/actors_films", actormovieHandler.HandleActorMovieGet)
+	http.HandleFunc("/actors_films", middleware.RequireAuth([]byte(secret))(actormovieHandler.HandleActorMovieGet))
 
 	//
 
