@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"film-library/internal/model"
 	"film-library/internal/service"
+	"film-library/internal/utils"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -49,6 +50,11 @@ func (h *MovieHandler) HandleMoviePut(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *MovieHandler) CreateFilm(w http.ResponseWriter, r *http.Request) {
+	if utils.IsAdmin(r) {
+		http.Error(w, "Forbidden: admin access required", http.StatusForbidden)
+		return
+	}
+
 	var film model.Film
 	if err := json.NewDecoder(r.Body).Decode(&film); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
@@ -72,6 +78,11 @@ func (h *MovieHandler) CreateFilm(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *MovieHandler) UpdateFilm(w http.ResponseWriter, r *http.Request) {
+	if utils.IsAdmin(r) {
+		http.Error(w, "Forbidden: admin access required", http.StatusForbidden)
+		return
+	}
+
 	var film model.Film
 	if err := json.NewDecoder(r.Body).Decode(&film); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
@@ -95,6 +106,11 @@ func (h *MovieHandler) UpdateFilm(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *MovieHandler) DeleteFilm(w http.ResponseWriter, r *http.Request) {
+	if utils.IsAdmin(r) {
+		http.Error(w, "Forbidden: admin access required", http.StatusForbidden)
+		return
+	}
+
 	id := r.URL.Query().Get("id")
 	idInt, err := strconv.Atoi(id)
 	if err != nil {

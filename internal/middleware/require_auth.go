@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strings"
@@ -17,9 +18,9 @@ func RequireAuth(secretKey []byte) func(http.HandlerFunc) http.HandlerFunc {
 				return
 			}
 
-			tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+			tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
 
-			token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+			token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 					return nil, fmt.Errorf("unexpected signing method")
 				}
@@ -31,7 +32,20 @@ func RequireAuth(secretKey []byte) func(http.HandlerFunc) http.HandlerFunc {
 				return
 			}
 
-			next(w, r)
+			claims, ok := token.Claims.(jwt.MapClaims)
+			if !ok {
+				http.Error(w, "Invalid claims", http.StatusUnauthorized)
+				return
+			}
+
+			userID := int(claims["user_id"].(float64))
+			role := int(claims["role"].(float64)) // добавим роль в claims, если ещё не добавлена
+
+			// кладём в контекст
+			ctx := context.WithValue(r.Context(), "user_id", userID)
+			ctx = context.WithValue(ctx, "role", role)
+
+			next(w, r.WithContext(ctx))
 		}
 	}
 }
