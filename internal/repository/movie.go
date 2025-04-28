@@ -7,6 +7,7 @@ import (
 	"fmt"
 )
 
+//go:generate go run github.com/vektra/mockery/v2@2.50.1 --name=MovieRepository
 type MovieRepository interface {
 	CreateFilm(ctx context.Context, film *model.Film) error
 	UpdateFilm(ctx context.Context, film *model.Film) error

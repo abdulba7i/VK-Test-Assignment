@@ -7,6 +7,7 @@ import (
 	"fmt"
 )
 
+//go:generate go run github.com/vektra/mockery/v2@2.50.1 --name=ActorRepository
 type ActorRepository interface {
 	CreateActor(ctx context.Context, actor *model.Actor) error
 	UpdateActor(ctx context.Context, actor *model.Actor) error

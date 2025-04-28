@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"film-library/internal/model"
 	"film-library/internal/service"
-	"film-library/internal/utils"
+	authmid "film-library/internal/utils/auth_mid"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -50,7 +50,7 @@ func (h *MovieHandler) HandleMoviePut(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *MovieHandler) CreateFilm(w http.ResponseWriter, r *http.Request) {
-	if utils.IsAdmin(r) {
+	if authmid.IsAdmin(r) {
 		http.Error(w, "Forbidden: admin access required", http.StatusForbidden)
 		return
 	}
@@ -78,7 +78,7 @@ func (h *MovieHandler) CreateFilm(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *MovieHandler) UpdateFilm(w http.ResponseWriter, r *http.Request) {
-	if utils.IsAdmin(r) {
+	if authmid.IsAdmin(r) {
 		http.Error(w, "Forbidden: admin access required", http.StatusForbidden)
 		return
 	}
@@ -106,7 +106,7 @@ func (h *MovieHandler) UpdateFilm(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *MovieHandler) DeleteFilm(w http.ResponseWriter, r *http.Request) {
-	if utils.IsAdmin(r) {
+	if authmid.IsAdmin(r) {
 		http.Error(w, "Forbidden: admin access required", http.StatusForbidden)
 		return
 	}

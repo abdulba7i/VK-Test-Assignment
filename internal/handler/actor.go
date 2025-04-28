@@ -3,7 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"film-library/internal/model"
-	"film-library/internal/utils"
+	authmid "film-library/internal/utils/auth_mid"
 	"strconv"
 
 	"film-library/internal/service"
@@ -39,7 +39,7 @@ func (h *ActorHandler) HandleActorPut(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *ActorHandler) CreateActor(w http.ResponseWriter, r *http.Request) {
-	if utils.IsAdmin(r) {
+	if authmid.IsAdmin(r) {
 		http.Error(w, "Forbidden: admin access required", http.StatusForbidden)
 		return
 	}
@@ -67,7 +67,7 @@ func (h *ActorHandler) CreateActor(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *ActorHandler) UpdateActor(w http.ResponseWriter, r *http.Request) {
-	if utils.IsAdmin(r) {
+	if authmid.IsAdmin(r) {
 		http.Error(w, "Forbidden: admin access required", http.StatusForbidden)
 		return
 	}
@@ -96,7 +96,7 @@ func (h *ActorHandler) UpdateActor(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *ActorHandler) DeleteActor(w http.ResponseWriter, r *http.Request) {
-	if utils.IsAdmin(r) {
+	if authmid.IsAdmin(r) {
 		http.Error(w, "Forbidden: admin access required", http.StatusForbidden)
 		return
 	}

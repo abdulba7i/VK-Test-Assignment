@@ -1,4 +1,4 @@
-package utils
+package authmid
 
 import "net/http"
 
