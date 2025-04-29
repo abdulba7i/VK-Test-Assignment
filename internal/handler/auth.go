@@ -9,10 +9,10 @@ import (
 )
 
 type AuthHandler struct {
-	service service.AuthService
+	service service.Authorization
 }
 
-func NewAuthHandler(service service.AuthService) AuthHandler {
+func NewAuthHandler(service service.Authorization) AuthHandler {
 	return AuthHandler{service: service}
 }
 
@@ -55,7 +55,7 @@ func (h *AuthHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(result)
+	json.NewEncoder(w).Encode(map[string]string{"token": result})
 }
 
 func (h *AuthHandler) VerifyUser(w http.ResponseWriter, r *http.Request) {

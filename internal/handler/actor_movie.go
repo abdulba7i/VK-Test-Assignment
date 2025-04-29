@@ -8,10 +8,10 @@ import (
 )
 
 type ActorMovieHandler struct {
-	service service.ActorMovieService
+	service service.ActorMovie
 }
 
-func NewActorMovieHandler(service service.ActorMovieService) ActorMovieHandler {
+func NewActorMovieHandler(service service.ActorMovie) ActorMovieHandler {
 	return ActorMovieHandler{service: service}
 }
 
@@ -29,7 +29,7 @@ func (h *ActorMovieHandler) GetActorMovies(w http.ResponseWriter, r *http.Reques
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	actors, err := h.service.GelAllActorWithFilms(r.Context())
+	actors, err := h.service.GetAllActorWithFilms(r.Context())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

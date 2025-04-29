@@ -49,22 +49,22 @@ func main() {
 	// Actor
 
 	actorService := service.NewActorService(storage)
-	actorHandler := handler.NewActorHandler(*actorService)
+	actorHandler := handler.NewActorHandler(actorService)
 
 	// Movie
 
 	movieService := service.NewMovieService(storage)
-	movieHandler := handler.NewMovieHandler(*movieService)
+	movieHandler := handler.NewMovieHandler(movieService)
 
 	// ActorMovie
 
 	actormovieService := service.NewActorMovieService(storage)
-	actormovieHandler := handler.NewActorMovieHandler(*actormovieService)
+	actormovieHandler := handler.NewActorMovieHandler(actormovieService)
 
 	// Auth
 	secret := os.Getenv("SECRET_KEY")
 	authService := service.NewAuthService(storage, secret)
-	authHandler := handler.NewAuthHandler(*authService)
+	authHandler := handler.NewAuthHandler(authService)
 
 	//
 

@@ -9,10 +9,11 @@ import (
 )
 
 type ActorService struct {
-	repo repository.ActorRepository
+	// repdo repository.ActorRepository
+	repo repository.Actor
 }
 
-func NewActorService(repo repository.ActorRepository) *ActorService {
+func NewActorService(repo repository.Actor) *ActorService {
 	return &ActorService{repo: repo}
 }
 

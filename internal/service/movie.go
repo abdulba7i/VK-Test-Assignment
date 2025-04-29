@@ -9,10 +9,11 @@ import (
 )
 
 type MovieService struct {
-	repo repository.MovieRepository
+	// repo repository.MovieRepository
+	repo repository.Movie
 }
 
-func NewMovieService(repo repository.MovieRepository) *MovieService {
+func NewMovieService(repo repository.Movie) *MovieService {
 	return &MovieService{repo: repo}
 }
 

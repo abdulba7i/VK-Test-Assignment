@@ -11,7 +11,8 @@ type ActorMovieRepository interface {
 	GetActorsWithFilms(ctx context.Context) (map[int]model.ActorWithFilms, error)
 }
 
-func NewActorMovieRepository(db *sql.DB) MovieRepository {
+// заменил MovieRepository ----> ActorMovieRepository
+func NewActorMovieRepository(db *sql.DB) ActorMovieRepository {
 	return &Storage{
 		db: db,
 	}

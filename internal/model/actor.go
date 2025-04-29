@@ -15,7 +15,9 @@ type Actor struct {
 
 // Validate - проверка корректности данных актёра
 func (a *Actor) Validate() error {
-
+	if a.Gender == "" {
+		return errors.New("не указан пол")
+	}
 	if a.Name == "" || len(a.Name) > 100 {
 		return errors.New("имя актера не может быть пустым и не должно превышать 100 символов")
 	}

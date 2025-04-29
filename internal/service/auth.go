@@ -14,11 +14,12 @@ import (
 const tokenTTL = 24 * time.Hour
 
 type AuthService struct {
-	repo      repository.AuthRepository
+	// repo      repository.AuthRepository
+	repo      repository.Authorization
 	secretKey []byte
 }
 
-func NewAuthService(repo repository.AuthRepository, secret string) *AuthService {
+func NewAuthService(repo repository.Authorization, secret string) *AuthService {
 	return &AuthService{
 		repo:      repo,
 		secretKey: []byte(secret),

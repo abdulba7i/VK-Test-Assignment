@@ -12,10 +12,10 @@ import (
 )
 
 type MovieHandler struct {
-	service service.MovieService
+	service service.Movie
 }
 
-func NewMovieHandler(service service.MovieService) MovieHandler {
+func NewMovieHandler(service service.Movie) MovieHandler {
 	return MovieHandler{service: service}
 }
 
