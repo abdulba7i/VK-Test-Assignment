@@ -49,7 +49,8 @@ func (h *AuthHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	result, err := h.service.CreateUser(r.Context(), user)
 	if err != nil {
-		response.WriteJSONError(w, fmt.Sprintf("failed to create user: %v", err), http.StatusInternalServerError)
+		// response.WriteJSONError(w, fmt.Sprintf("failed to create user: %v", err), http.StatusInternalServerError)
+		response.WriteJSONError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -83,9 +84,3 @@ func (h *AuthHandler) VerifyUser(w http.ResponseWriter, r *http.Request) {
 		},
 	})
 }
-
-// func writeJSONError(w http.ResponseWriter, message string, status int) {
-// 	w.Header().Set("Content-Type", "application/json")
-// 	w.WriteHeader(status)
-// 	json.NewEncoder(w).Encode(map[string]string{"error": message})
-// }

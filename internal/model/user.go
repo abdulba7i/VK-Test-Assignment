@@ -32,11 +32,11 @@ type SignInRequest struct {
 }
 
 // обновление данных (админка)
-type UpdateUserRequest struct {
-	Username *string   `json:"username,omitempty" validate:"omitempty,min=3,max=50"`
-	Password *string   `json:"password,omitempty" validate:"omitempty,min=8"`
-	Role     *UserRole `json:"role,omitempty" validate:"omitempty,oneof=user admin"`
-}
+// type UpdateUserRequest struct {
+// 	Username *string   `json:"username,omitempty" validate:"omitempty,min=3,max=50"`
+// 	Password *string   `json:"password,omitempty" validate:"omitempty,min=8"`
+// 	Role     *UserRole `json:"role,omitempty" validate:"omitempty,oneof=user admin"`
+// }
 
 type UserResponse struct {
 	ID       int    `json:"id"`

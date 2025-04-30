@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bytes"
+	"errors"
 	"film-library/internal/model"
 	"film-library/internal/service"
 	mock_service "film-library/internal/service/mocks"
@@ -37,6 +38,32 @@ func TestHandler_CreateUser(t *testing.T) {
 			},
 			expectedStatusCode:   http.StatusCreated,
 			expectedResponseBody: `{"token":"1"}`,
+		},
+		{
+			name:      "Wrong Input",
+			inputBody: `{"username": "", "password": "qwerty", "role": 1}`,
+			inputUser: model.User{
+				Username: "",
+				Password: "qwerty",
+				Role:     1,
+			},
+			mockBehavior:         func(r *mock_service.MockAuthorization, user model.User) {},
+			expectedStatusCode:   http.StatusBadRequest,
+			expectedResponseBody: `{"message":"username, password and role are required"}`,
+		},
+		{
+			name:      "Service Error",
+			inputBody: `{"username": "username", "password": "qwerty", "role": 1}`,
+			inputUser: model.User{
+				Username: "username",
+				Password: "qwerty",
+				Role:     1,
+			},
+			mockBehavior: func(r *mock_service.MockAuthorization, user model.User) {
+				r.EXPECT().CreateUser(gomock.Any(), user).Return("", errors.New("failed to create user"))
+			},
+			expectedStatusCode:   http.StatusInternalServerError,
+			expectedResponseBody: `{"message":"failed to create user"}`,
 		},
 	}
 
