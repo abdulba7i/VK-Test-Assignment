@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"film-library/internal/model"
 	"film-library/internal/service"
+	"film-library/internal/utils/response"
+	"fmt"
 	"net/http"
 )
 
@@ -20,20 +22,24 @@ func (h *ActorMovieHandler) HandleActorMovieGet(w http.ResponseWriter, r *http.R
 	case http.MethodGet:
 		h.GetActorMovies(w, r)
 	default:
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		response.WriteJSONError(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
 }
 
 func (h *ActorMovieHandler) GetActorMovies(w http.ResponseWriter, r *http.Request) {
 	if err := model.ValidateGetActors(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		response.WriteJSONError(w, fmt.Sprintf("%v", err.Error()), http.StatusBadRequest)
 		return
 	}
+
 	actors, err := h.service.GetAllActorWithFilms(r.Context())
+
 	if err != nil {
+		response.WriteJSONError(w, fmt.Sprintf("%v", err.Error()), http.StatusInternalServerError)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(actors)

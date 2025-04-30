@@ -5,6 +5,7 @@ import (
 	"film-library/internal/model"
 	"film-library/internal/service"
 	authmid "film-library/internal/utils/auth_mid"
+	"film-library/internal/utils/response"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -26,7 +27,7 @@ func (h *MovieHandler) HandleMovieGet(w http.ResponseWriter, r *http.Request) {
 	case r.URL.Path == "/films/search" && r.Method == http.MethodGet:
 		h.SearchFilm(w, r)
 	default:
-		http.Error(w, "Method not allowed", http.StatusNotFound)
+		response.WriteJSONError(w, "Method not allowed", http.StatusNotFound)
 	}
 }
 func (h *MovieHandler) HandleMoviePost(w http.ResponseWriter, r *http.Request) {
@@ -34,7 +35,7 @@ func (h *MovieHandler) HandleMoviePost(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPost:
 		h.CreateFilm(w, r)
 	default:
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		response.WriteJSONError(w, "Method not allowed", http.StatusNotFound)
 	}
 }
 
@@ -51,24 +52,24 @@ func (h *MovieHandler) HandleMoviePut(w http.ResponseWriter, r *http.Request) {
 
 func (h *MovieHandler) CreateFilm(w http.ResponseWriter, r *http.Request) {
 	if authmid.IsAdmin(r) {
-		http.Error(w, "Forbidden: admin access required", http.StatusForbidden)
+		response.WriteJSONError(w, "Forbidden: admin access required", http.StatusForbidden)
 		return
 	}
 
 	var film model.Film
 	if err := json.NewDecoder(r.Body).Decode(&film); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		response.WriteJSONError(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
 	if err := film.Validate(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		response.WriteJSONError(w, fmt.Sprintf("%v", err.Error()), http.StatusBadRequest)
 		return
 	}
 
 	err := h.service.AddMovie(r.Context(), film)
 	if err != nil {
-		http.Error(w, "Failed to create film", http.StatusInternalServerError)
+		response.WriteJSONError(w, "Failed to create film", http.StatusInternalServerError)
 		return
 	}
 
@@ -79,24 +80,24 @@ func (h *MovieHandler) CreateFilm(w http.ResponseWriter, r *http.Request) {
 
 func (h *MovieHandler) UpdateFilm(w http.ResponseWriter, r *http.Request) {
 	if authmid.IsAdmin(r) {
-		http.Error(w, "Forbidden: admin access required", http.StatusForbidden)
+		response.WriteJSONError(w, "Forbidden: admin access required", http.StatusForbidden)
 		return
 	}
 
 	var film model.Film
 	if err := json.NewDecoder(r.Body).Decode(&film); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		response.WriteJSONError(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
 	if err := film.Validate(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		response.WriteJSONError(w, fmt.Sprintf("%v", err.Error()), http.StatusBadRequest)
 		return
 	}
 
 	err := h.service.UpdateMovie(r.Context(), film)
 	if err != nil {
-		http.Error(w, "Failed to update film", http.StatusInternalServerError)
+		response.WriteJSONError(w, "Failed to update film", http.StatusInternalServerError)
 		return
 	}
 
@@ -107,19 +108,19 @@ func (h *MovieHandler) UpdateFilm(w http.ResponseWriter, r *http.Request) {
 
 func (h *MovieHandler) DeleteFilm(w http.ResponseWriter, r *http.Request) {
 	if authmid.IsAdmin(r) {
-		http.Error(w, "Forbidden: admin access required", http.StatusForbidden)
+		response.WriteJSONError(w, "Forbidden: admin access required", http.StatusForbidden)
 		return
 	}
 
 	id := r.URL.Query().Get("id")
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
-		http.Error(w, "Invalid film ID", http.StatusBadRequest)
+		response.WriteJSONError(w, "Invalid film ID", http.StatusBadRequest)
 		return
 	}
 	err = h.service.DeleteMovie(r.Context(), idInt)
 	if err != nil {
-		http.Error(w, "Failed to delete film", http.StatusInternalServerError)
+		response.WriteJSONError(w, "Failed to delete film", http.StatusInternalServerError)
 		return
 	}
 }
@@ -129,14 +130,13 @@ func (h *MovieHandler) GetAllFilms(w http.ResponseWriter, r *http.Request) {
 	sortBy := r.URL.Query().Get("sort_by")
 
 	if err := model.ValidateSortFilm(sortBy); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		response.WriteJSONError(w, fmt.Sprintf("%v", err.Error()), http.StatusBadRequest)
 		return
 	}
 
 	listFilms, err := h.service.GetFilms(r.Context(), sortBy)
 	if err != nil {
-		http.Error(w, "Failed to get films", http.StatusInternalServerError)
-		fmt.Println(err)
+		response.WriteJSONError(w, fmt.Sprintf("Failed to get films: %v", err), http.StatusInternalServerError)
 		return
 	}
 
@@ -151,20 +151,15 @@ func (h *MovieHandler) SearchFilm(w http.ResponseWriter, r *http.Request) {
 	actor, movie := strings.TrimSpace(r.URL.Query().Get("actor")), strings.TrimSpace(r.URL.Query().Get("movie"))
 
 	if err := filmSearch.ValidateFilmSearchParams(movie, actor); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		response.WriteJSONError(w, fmt.Sprintf("%v", err.Error()), http.StatusBadRequest)
 		return
 	}
 
 	films, err := h.service.SearchFilm(r.Context(), actor, movie)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Search failed: %v", err), http.StatusInternalServerError)
+		response.WriteJSONError(w, fmt.Sprintf("Search failed: %v", err), http.StatusInternalServerError)
 		return
 	}
-
-	// if (films == model.Film{}) {
-	// 	w.WriteHeader(http.StatusNotFound)
-	// 	return
-	// }
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(films)

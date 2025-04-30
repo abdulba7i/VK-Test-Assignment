@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"film-library/internal/model"
 	authmid "film-library/internal/utils/auth_mid"
+	"film-library/internal/utils/response"
+	"fmt"
 	"strconv"
 
 	"film-library/internal/service"
@@ -23,7 +25,7 @@ func (h *ActorHandler) HandleActorPost(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPost:
 		h.CreateActor(w, r)
 	default:
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		response.WriteJSONError(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
 }
 
@@ -34,30 +36,30 @@ func (h *ActorHandler) HandleActorPut(w http.ResponseWriter, r *http.Request) {
 	case http.MethodDelete:
 		h.DeleteActor(w, r)
 	default:
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		response.WriteJSONError(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
 }
 
 func (h *ActorHandler) CreateActor(w http.ResponseWriter, r *http.Request) {
 	if authmid.IsAdmin(r) {
-		http.Error(w, "Forbidden: admin access required", http.StatusForbidden)
+		response.WriteJSONError(w, "Forbidden: admin access required", http.StatusForbidden)
 		return
 	}
 
 	var actor model.Actor
 	if err := json.NewDecoder(r.Body).Decode(&actor); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		response.WriteJSONError(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
 	if err := actor.Validate(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		response.WriteJSONError(w, fmt.Sprintf("%v", err.Error()), http.StatusBadRequest)
 		return
 	}
 
 	err := h.service.AddActor(r.Context(), actor)
 	if err != nil {
-		http.Error(w, "Failed to create actor", http.StatusInternalServerError)
+		response.WriteJSONError(w, "Failed to create actor", http.StatusInternalServerError)
 		return
 	}
 
@@ -68,24 +70,24 @@ func (h *ActorHandler) CreateActor(w http.ResponseWriter, r *http.Request) {
 
 func (h *ActorHandler) UpdateActor(w http.ResponseWriter, r *http.Request) {
 	if authmid.IsAdmin(r) {
-		http.Error(w, "Forbidden: admin access required", http.StatusForbidden)
+		response.WriteJSONError(w, "Forbidden: admin access required", http.StatusForbidden)
 		return
 	}
 
 	var actor model.Actor
 	if err := json.NewDecoder(r.Body).Decode(&actor); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		response.WriteJSONError(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
 	if err := actor.Validate(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		response.WriteJSONError(w, fmt.Sprintf("%v", err.Error()), http.StatusBadRequest)
 		return
 	}
 
 	err := h.service.UpdateActor(r.Context(), actor)
 	if err != nil {
-		http.Error(w, "Failed to update actor", http.StatusInternalServerError)
+		response.WriteJSONError(w, fmt.Sprintf("Failed to update actor: %v", err), http.StatusInternalServerError)
 		return
 	}
 
@@ -97,19 +99,21 @@ func (h *ActorHandler) UpdateActor(w http.ResponseWriter, r *http.Request) {
 
 func (h *ActorHandler) DeleteActor(w http.ResponseWriter, r *http.Request) {
 	if authmid.IsAdmin(r) {
-		http.Error(w, "Forbidden: admin access required", http.StatusForbidden)
+		response.WriteJSONError(w, "Forbidden: admin access required", http.StatusForbidden)
 		return
 	}
 
 	id := r.URL.Query().Get("id")
 	idInt, err := strconv.Atoi(id)
+
 	if err != nil {
-		http.Error(w, "Invalid actor ID", http.StatusBadRequest)
+		response.WriteJSONError(w, "Invalid actor ID", http.StatusBadRequest)
 		return
 	}
+
 	err = h.service.DeleteActor(r.Context(), idInt)
 	if err != nil {
-		http.Error(w, "Failed to delete actor", http.StatusInternalServerError)
+		response.WriteJSONError(w, "Failed to delete actor", http.StatusInternalServerError)
 		return
 	}
 }

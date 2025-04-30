@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"film-library/internal/model"
 	"film-library/internal/service"
+	"film-library/internal/utils/response"
 	"fmt"
 	"net/http"
 )
@@ -23,15 +24,15 @@ func (h *AuthHandler) HandleAuthPost(w http.ResponseWriter, r *http.Request) {
 	case r.URL.Path == "/sign_in" && r.Method == http.MethodPost:
 		h.VerifyUser(w, r)
 	default:
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		response.WriteJSONError(w, "method not allowed", http.StatusMethodNotAllowed)
 	}
 }
+
 func (h *AuthHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
-	// var user model.User
 	var req model.SignUpRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		response.WriteJSONError(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
@@ -41,15 +42,14 @@ func (h *AuthHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		Role:     req.Role,
 	}
 
-	// ВАЖНО: проверяем обязательные поля
 	if user.Username == "" || user.Password == "" || user.Role == 0 {
-		http.Error(w, "username, password and role are required", http.StatusBadRequest)
+		response.WriteJSONError(w, "username, password and role are required", http.StatusBadRequest)
 		return
 	}
 
 	result, err := h.service.CreateUser(r.Context(), user)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("failed to create user: %v", err), http.StatusInternalServerError)
+		response.WriteJSONError(w, fmt.Sprintf("failed to create user: %v", err), http.StatusInternalServerError)
 		return
 	}
 
@@ -61,14 +61,14 @@ func (h *AuthHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 func (h *AuthHandler) VerifyUser(w http.ResponseWriter, r *http.Request) {
 	var input model.SignInRequest
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		response.WriteJSONError(w, fmt.Sprintf("Invalid request body: %v", err), http.StatusBadRequest)
 		return
 	}
 
 	token, user, err := h.service.VerifyUser(r.Context(), input.Username, input.Password)
 
 	if err != nil {
-		http.Error(w, fmt.Sprintf("failed to verify user: %v", err), http.StatusInternalServerError)
+		response.WriteJSONError(w, fmt.Sprintf("failed to verify user: %v", err), http.StatusInternalServerError)
 		return
 	}
 
@@ -83,3 +83,9 @@ func (h *AuthHandler) VerifyUser(w http.ResponseWriter, r *http.Request) {
 		},
 	})
 }
+
+// func writeJSONError(w http.ResponseWriter, message string, status int) {
+// 	w.Header().Set("Content-Type", "application/json")
+// 	w.WriteHeader(status)
+// 	json.NewEncoder(w).Encode(map[string]string{"error": message})
+// }
