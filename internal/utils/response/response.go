@@ -1,51 +1,12 @@
 package response
 
 import (
-	"fmt"
-	"strings"
-
-	"github.com/go-playground/validator"
+	"encoding/json"
+	"net/http"
 )
 
-type Response struct {
-	Status string `json:"status"`
-	Error  string `json:"error,omitempty"`
-}
-
-const (
-	StatusOK    = "OK"
-	StatusError = "Error"
-)
-
-func OK() *Response {
-	return &Response{
-		Status: StatusOK,
-	}
-}
-
-func Error(info_err string) *Response {
-	return &Response{
-		Status: StatusError,
-		Error:  info_err,
-	}
-}
-
-func ValidationError(errs validator.ValidationErrors) Response {
-	var errMsgs []string
-
-	for _, err := range errs {
-		switch err.ActualTag() {
-		case "required":
-			errMsgs = append(errMsgs, fmt.Sprintf("field %s is a required field", err.Field()))
-		case "url":
-			errMsgs = append(errMsgs, fmt.Sprintf("field %s is not a valid URL", err.Field()))
-		default:
-			errMsgs = append(errMsgs, fmt.Sprintf("field %s is not valid", err.Field()))
-		}
-	}
-
-	return Response{
-		Status: StatusError,
-		Error:  strings.Join(errMsgs, ", "),
-	}
+func WriteJSONError(w http.ResponseWriter, message string, status int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(map[string]string{"error": message})
 }
