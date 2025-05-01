@@ -49,7 +49,6 @@ func (h *AuthHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	result, err := h.service.CreateUser(r.Context(), user)
 	if err != nil {
-		// response.WriteJSONError(w, fmt.Sprintf("failed to create user: %v", err), http.StatusInternalServerError)
 		response.WriteJSONError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -66,10 +65,15 @@ func (h *AuthHandler) VerifyUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if input.Username == "" || input.Password == "" {
+		response.WriteJSONError(w, "username or password are required", http.StatusBadRequest)
+		return
+	}
+
 	token, user, err := h.service.VerifyUser(r.Context(), input.Username, input.Password)
 
 	if err != nil {
-		response.WriteJSONError(w, fmt.Sprintf("failed to verify user: %v", err), http.StatusInternalServerError)
+		response.WriteJSONError(w, "failed to verify user", http.StatusInternalServerError)
 		return
 	}
 
