@@ -68,8 +68,9 @@ func main() {
 
 	//
 
-	http.HandleFunc("/actors", middleware.RequireAuth([]byte(secret))(actorHandler.HandleActorPost)) // create actor
-	http.HandleFunc("/actor/", middleware.RequireAuth([]byte(secret))(actorHandler.HandleActorPut))  // update actor
+	http.HandleFunc("/actors", middleware.RequireAuth([]byte(secret))(actorHandler.HandleActorPost))       // create actor
+	http.HandleFunc("/actor/", middleware.RequireAuth([]byte(secret))(actorHandler.HandleActorPut))        // update actor
+	http.HandleFunc("/actor_del/", middleware.RequireAuth([]byte(secret))(actorHandler.HandleActorDelete)) // update actor
 
 	//
 

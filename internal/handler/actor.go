@@ -33,6 +33,13 @@ func (h *ActorHandler) HandleActorPut(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPut:
 		h.UpdateActor(w, r)
+	default:
+		response.WriteJSONError(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
+}
+
+func (h *ActorHandler) HandleActorDelete(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
 	case http.MethodDelete:
 		h.DeleteActor(w, r)
 	default:
@@ -87,14 +94,13 @@ func (h *ActorHandler) UpdateActor(w http.ResponseWriter, r *http.Request) {
 
 	err := h.service.UpdateActor(r.Context(), actor)
 	if err != nil {
-		response.WriteJSONError(w, fmt.Sprintf("Failed to update actor: %v", err), http.StatusInternalServerError)
+		response.WriteJSONError(w, "Failed to update actor", http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(actor)
-
 }
 
 func (h *ActorHandler) DeleteActor(w http.ResponseWriter, r *http.Request) {
@@ -116,4 +122,13 @@ func (h *ActorHandler) DeleteActor(w http.ResponseWriter, r *http.Request) {
 		response.WriteJSONError(w, "Failed to delete actor", http.StatusInternalServerError)
 		return
 	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	response := map[string]string{
+		"message": "actor deleted successfully",
+	}
+
+	json.NewEncoder(w).Encode(response)
 }
