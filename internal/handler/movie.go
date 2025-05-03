@@ -50,6 +50,15 @@ func (h *MovieHandler) HandleMoviePut(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (h *MovieHandler) HandleMovieDelete(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodDelete:
+		h.DeleteFilm(w, r)
+	default:
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
+}
+
 func (h *MovieHandler) CreateFilm(w http.ResponseWriter, r *http.Request) {
 	if authmid.IsAdmin(r) {
 		response.WriteJSONError(w, "Forbidden: admin access required", http.StatusForbidden)
