@@ -123,6 +123,15 @@ func (h *MovieHandler) DeleteFilm(w http.ResponseWriter, r *http.Request) {
 		response.WriteJSONError(w, "Failed to delete film", http.StatusInternalServerError)
 		return
 	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	response := map[string]string{
+		"message": "movie deleted successfully",
+	}
+
+	json.NewEncoder(w).Encode(response)
 }
 
 func (h *MovieHandler) GetAllFilms(w http.ResponseWriter, r *http.Request) {
