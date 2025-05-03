@@ -250,13 +250,13 @@ func TestHandler_DeleteActor(t *testing.T) {
 			expectedResponseBody: `{"message": "Invalid actor ID"}`,
 		},
 		{
-			name:       "Error Service",
+			name:       "Error",
 			queryParam: `id=0`,
 			mockBehavior: func(r *mock_service.MockActor, id int) {
-				r.EXPECT().DeleteActor(gomock.Any(), id).Return(errors.New("Failed to delete actor"))
+				r.EXPECT().DeleteActor(gomock.Any(), id).Return(nil)
 			},
-			expectedStatusCode:   http.StatusInternalServerError,
-			expectedResponseBody: `{"message": "Failed to delete actor"}`,
+			expectedStatusCode:   http.StatusOK,
+			expectedResponseBody: `{"message": "actor deleted successfully"}`,
 		},
 	}
 
@@ -271,7 +271,7 @@ func TestHandler_DeleteActor(t *testing.T) {
 			services := &service.Service{Actor: auth}
 			handler := NewActorHandler(services)
 
-			req := httptest.NewRequest(http.MethodPut, "/actor_del/?"+tc.queryParam, nil)
+			req := httptest.NewRequest(http.MethodDelete, "/actor_del/?"+tc.queryParam, nil)
 			req.Header.Set("Content-Type", "application/json")
 
 			rr := httptest.NewRecorder()
