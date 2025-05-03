@@ -253,10 +253,10 @@ func TestHandler_DeleteActor(t *testing.T) {
 			name:       "Error",
 			queryParam: `id=0`,
 			mockBehavior: func(r *mock_service.MockActor, id int) {
-				r.EXPECT().DeleteActor(gomock.Any(), id).Return(nil)
+				r.EXPECT().DeleteActor(gomock.Any(), id).Return(errors.New("Failed to delete actor"))
 			},
-			expectedStatusCode:   http.StatusOK,
-			expectedResponseBody: `{"message": "actor deleted successfully"}`,
+			expectedStatusCode:   http.StatusInternalServerError,
+			expectedResponseBody: `{"message": "Failed to delete actor"}`,
 		},
 	}
 
