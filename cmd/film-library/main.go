@@ -78,7 +78,7 @@ func main() {
 	http.HandleFunc("/film/", middleware.RequireAuth([]byte(secret))(movieHandler.HandleMoviePut))
 	http.HandleFunc("/film_del/", middleware.RequireAuth([]byte(secret))(movieHandler.HandleMovieDelete))
 
-	http.HandleFunc("/films_get_list", middleware.RequireAuth([]byte(secret))(movieHandler.GetAllFilms)) // GET /films
+	http.HandleFunc("/films_get_list/", middleware.RequireAuth([]byte(secret))(movieHandler.GetAllFilms)) // GET /films
 
 	http.HandleFunc("/films/search", middleware.RequireAuth([]byte(secret))(movieHandler.SearchFilm)) // GET /films/search
 

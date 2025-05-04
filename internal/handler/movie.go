@@ -154,7 +154,7 @@ func (h *MovieHandler) GetAllFilms(w http.ResponseWriter, r *http.Request) {
 
 	listFilms, err := h.service.GetFilms(r.Context(), sortBy)
 	if err != nil {
-		response.WriteJSONError(w, fmt.Sprintf("Failed to get films: %v", err), http.StatusInternalServerError)
+		response.WriteJSONError(w, "Failed to get films", http.StatusInternalServerError)
 		return
 	}
 
