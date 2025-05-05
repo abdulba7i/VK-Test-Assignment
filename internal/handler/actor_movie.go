@@ -36,7 +36,6 @@ func (h *ActorMovieHandler) GetActorMovies(w http.ResponseWriter, r *http.Reques
 
 	if err != nil {
 		response.WriteJSONError(w, fmt.Sprintf("%v", err.Error()), http.StatusInternalServerError)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
