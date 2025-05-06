@@ -3,11 +3,9 @@ package main
 import (
 	"film-library/internal/config"
 	"film-library/internal/handler"
-	"film-library/internal/middleware"
 	"film-library/internal/repository"
 	"film-library/internal/service"
 	slogpretty "film-library/internal/utils/handlers"
-	"fmt"
 	"log"
 	"log/slog"
 	"net/http"
@@ -22,6 +20,7 @@ const (
 	envLocal = "local"
 	envDev   = "dev"
 	envProd  = "prod"
+	version  = "1.0.0"
 )
 
 func main() {
@@ -29,79 +28,29 @@ func main() {
 		log.Println("No .env file found, using environment variables")
 	}
 
+	secret := os.Getenv("SECRET_KEY")
 	cfg := config.MustLoad()
-
 	log := setupLogger(cfg.Env)
 
-	log.Info(
-		"starting film-library", slog.String("env", cfg.Env),
-		slog.String("version", "123"),
+	log.Info("starting film-library",
+		slog.String("env", cfg.Env),
+		slog.String("version", version),
 	)
-	log.Debug("debug messages are enabled")
 
 	storage, err := repository.Connect(cfg.Database)
 	if err != nil {
 		log.Error("failed to init storage", "error", err)
-		fmt.Println("Storage connection error:", err)
 		os.Exit(1)
 	}
 
-	// Actor
+	repositories := repository.NewRepository(storage.DB())
+	services := service.NewService(repositories, secret)
+	router := handler.InitRoute(services)
 
-	actorService := service.NewActorService(storage)
-	actorHandler := handler.NewActorHandler(actorService)
-
-	// Movie
-
-	movieService := service.NewMovieService(storage)
-	movieHandler := handler.NewMovieHandler(movieService)
-
-	// ActorMovie
-
-	actormovieService := service.NewActorMovieService(storage)
-	actormovieHandler := handler.NewActorMovieHandler(actormovieService)
-
-	// Auth
-	secret := os.Getenv("SECRET_KEY")
-	authService := service.NewAuthService(storage, secret)
-	authHandler := handler.NewAuthHandler(authService)
-
-	//
-
-	http.HandleFunc("/actors", middleware.RequireAuth([]byte(secret))(actorHandler.HandleActorPost))       // create actor
-	http.HandleFunc("/actor/", middleware.RequireAuth([]byte(secret))(actorHandler.HandleActorPut))        // update actor
-	http.HandleFunc("/actor_del/", middleware.RequireAuth([]byte(secret))(actorHandler.HandleActorDelete)) // update actor
-
-	//
-
-	http.HandleFunc("/films", middleware.RequireAuth([]byte(secret))(movieHandler.HandleMoviePost))
-	http.HandleFunc("/film/", middleware.RequireAuth([]byte(secret))(movieHandler.HandleMoviePut))
-	http.HandleFunc("/film_del/", middleware.RequireAuth([]byte(secret))(movieHandler.HandleMovieDelete))
-
-	http.HandleFunc("/films_get_list/", middleware.RequireAuth([]byte(secret))(movieHandler.GetAllFilms)) // GET /films
-
-	http.HandleFunc("/films/search", middleware.RequireAuth([]byte(secret))(movieHandler.SearchFilm)) // GET /films/search
-
-	//
-
-	http.HandleFunc("/actors_films", middleware.RequireAuth([]byte(secret))(actormovieHandler.HandleActorMovieGet))
-
-	//
-
-	http.HandleFunc("/sign_up", authHandler.HandleAuthPost)
-	http.HandleFunc("/sign_in", authHandler.HandleAuthPost)
-
-	//
-
-	// http.HandleFunc("/user-data", middleware.RequireRole([]byte(secret), int(model.RoleAdmin))(UserDataHandler))
-	// http.HandleFunc("/admin-only", middleware.RequireRole([]byte(secret), int(model.RoleUser))(AdminHandler))
-
-	//
-
+	log.Info("Server is running on port :8080")
 	go func() {
-		err = http.ListenAndServe(":8080", nil)
-		if err != nil {
-			log.Error("failed to start server", "error", err)
+		if err := http.ListenAndServe(":8080", router); err != nil {
+			log.Error("server exited with error", "error", err)
 		}
 	}()
 
@@ -109,12 +58,7 @@ func main() {
 	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
 	<-quit
 
-	// err = http.ListenAndServe(":8080", nil)
-	// if err != nil {
-	// 	log.Error("failed to start server", "error", err)
-	// }
-
-	_ = storage
+	log.Info("Shutting down gracefully...")
 }
 
 // http://localhost:8080/films/search?actor=Рози Хантингтон-Уайтли&movie=Трансформеры 3: Тёмная сторона Луны

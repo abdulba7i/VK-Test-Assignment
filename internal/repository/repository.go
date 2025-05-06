@@ -6,6 +6,8 @@ import (
 	"film-library/internal/model"
 )
 
+//go:generate mockgen -source=repository.go -destination=mocks/mock.go
+
 // AuthRepository
 type Authorization interface {
 	CreateUser(ctx context.Context, user *model.User) error
