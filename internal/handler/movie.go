@@ -22,7 +22,7 @@ func NewMovieHandler(service service.Movie) MovieHandler {
 
 func (h *MovieHandler) HandleMovieGet(w http.ResponseWriter, r *http.Request) {
 	switch {
-	case r.URL.Path == "/films_get_list" && r.Method == http.MethodGet:
+	case r.URL.Path == "/films" && r.Method == http.MethodGet:
 		h.GetAllFilms(w, r)
 	case r.URL.Path == "/films/search" && r.Method == http.MethodGet:
 		h.SearchFilm(w, r)
@@ -43,8 +43,6 @@ func (h *MovieHandler) HandleMoviePut(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPut:
 		h.UpdateFilm(w, r)
-	case http.MethodDelete:
-		h.DeleteFilm(w, r)
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
@@ -59,6 +57,19 @@ func (h *MovieHandler) HandleMovieDelete(w http.ResponseWriter, r *http.Request)
 	}
 }
 
+// @Summary Create Film
+// @Security ApiKeyAuth
+// @Tags film
+// @Description Create Film
+// @ID create-film
+// @Accept  json
+// @Produce  json
+// @Param film body model.Film true "Create Film"
+// @Success 201 {object} model.Film
+// @Failure 400,403,404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Failure default {object} response.ErrorResponse
+// @Router /film_create [post]
 func (h *MovieHandler) CreateFilm(w http.ResponseWriter, r *http.Request) {
 	if authmid.IsAdmin(r) {
 		response.WriteJSONError(w, "Forbidden: admin access required", http.StatusForbidden)
@@ -87,6 +98,19 @@ func (h *MovieHandler) CreateFilm(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(film)
 }
 
+// @Summary Update Film
+// @Security ApiKeyAuth
+// @Tags film
+// @Description Update Film
+// @ID update-film
+// @Accept  json
+// @Produce  json
+// @Param film body model.Film true "Update Film"
+// @Success 201 {object} model.Film
+// @Failure 400,403,404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Failure default {object} response.ErrorResponse
+// @Router /film_update [put]
 func (h *MovieHandler) UpdateFilm(w http.ResponseWriter, r *http.Request) {
 	if authmid.IsAdmin(r) {
 		response.WriteJSONError(w, "Forbidden: admin access required", http.StatusForbidden)
@@ -115,19 +139,39 @@ func (h *MovieHandler) UpdateFilm(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(film)
 }
 
+// @Summary Delete Film
+// @Security ApiKeyAuth
+// @Tags film
+// @Description Delete Film
+// @ID delete-film
+// @Accept  json
+// @Produce  json
+// @Param id query int true "Film ID"
+// @Success 200 {object} map[string]string
+// @Failure 400,403,404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Failure default {object} response.ErrorResponse
+// @Router /film_delete/{id} [delete]
 func (h *MovieHandler) DeleteFilm(w http.ResponseWriter, r *http.Request) {
 	if authmid.IsAdmin(r) {
 		response.WriteJSONError(w, "Forbidden: admin access required", http.StatusForbidden)
 		return
 	}
 
-	id := r.URL.Query().Get("id")
-	idInt, err := strconv.Atoi(id)
+	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	if len(parts) < 2 {
+		response.WriteJSONError(w, "Missing film ID", http.StatusBadRequest)
+		return
+	}
+
+	idStr := parts[len(parts)-1]
+	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		response.WriteJSONError(w, "Invalid film ID", http.StatusBadRequest)
 		return
 	}
-	err = h.service.DeleteMovie(r.Context(), idInt)
+
+	err = h.service.DeleteMovie(r.Context(), id)
 	if err != nil {
 		response.WriteJSONError(w, "Failed to delete film", http.StatusInternalServerError)
 		return
@@ -143,6 +187,19 @@ func (h *MovieHandler) DeleteFilm(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
+// @Summary Get All Films
+// @Security ApiKeyAuth
+// @Tags film
+// @Description Get all films with optional sorting
+// @ID get-all-films
+// @Accept  json
+// @Produce  json
+// @Param sort_by query string false "Sort films by field (optional)"
+// @Success 200 {array} model.Film
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Failure default {object} response.ErrorResponse
+// @Router /films_get_list [get]
 func (h *MovieHandler) GetAllFilms(w http.ResponseWriter, r *http.Request) {
 	var listFilms []model.Film
 	sortBy := r.URL.Query().Get("sort_by")
@@ -163,6 +220,20 @@ func (h *MovieHandler) GetAllFilms(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(listFilms)
 }
 
+// @Summary Search Film
+// @Security ApiKeyAuth
+// @Tags film
+// @Description Search films by actor and/or movie name
+// @ID search-film
+// @Accept  json
+// @Produce  json
+// @Param actor query string false "Actor name to search for"
+// @Param movie query string false "Movie title to search for"
+// @Success 200 {array} model.Film
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Failure default {object} response.ErrorResponse
+// @Router /films/search [get]
 func (h *MovieHandler) SearchFilm(w http.ResponseWriter, r *http.Request) {
 	var filmSearch model.Film
 

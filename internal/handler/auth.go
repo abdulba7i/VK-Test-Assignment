@@ -17,17 +17,39 @@ func NewAuthHandler(service service.Authorization) AuthHandler {
 	return AuthHandler{service: service}
 }
 
+//	func (h *AuthHandler) HandleAuthPost(w http.ResponseWriter, r *http.Request) {
+//		switch {
+//		case r.URL.Path == "/auth/sign_up" && r.Method == http.MethodPost:
+//			h.CreateUser(w, r)
+//		case r.URL.Path == "/auth/sign_in" && r.Method == http.MethodPost:
+//			h.VerifyUser(w, r)
+//		default:
+//			response.WriteJSONError(w, "method not allowed", http.StatusMethodNotAllowed)
+//		}
+//	}
 func (h *AuthHandler) HandleAuthPost(w http.ResponseWriter, r *http.Request) {
-	switch {
-	case r.URL.Path == "/sign_up" && r.Method == http.MethodPost:
+	switch r.URL.Path {
+	case "/auth/sign_up":
 		h.CreateUser(w, r)
-	case r.URL.Path == "/sign_in" && r.Method == http.MethodPost:
+	case "/auth/sign_in":
 		h.VerifyUser(w, r)
 	default:
-		response.WriteJSONError(w, "method not allowed", http.StatusMethodNotAllowed)
+		http.Error(w, "Not found", http.StatusNotFound)
 	}
 }
 
+// @Summary SignUp
+// @Tags auth
+// @Description Create a new user account and return JWT token
+// @ID create-account
+// @Accept  json
+// @Produce  json
+// @Param req body model.SignUpRequest true "Account info"
+// @Success 201 {object} map[string]string
+// @Failure 400,404,405 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Failure default {object} response.ErrorResponse
+// @Router /auth/sign_up [post]
 func (h *AuthHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var req model.SignUpRequest
 
@@ -58,6 +80,18 @@ func (h *AuthHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"token": result})
 }
 
+// @Summary SignIn
+// @Tags auth
+// @Description Authenticate user and return JWT token + user info
+// @ID login
+// @Accept  json
+// @Produce  json
+// @Param input body model.SignInRequest true "Account info"
+// @Success 200 {object} model.AuthResponse
+// @Failure 400,404,405 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Failure default {object} response.ErrorResponse
+// @Router /auth/sign_in [post]
 func (h *AuthHandler) VerifyUser(w http.ResponseWriter, r *http.Request) {
 	var input model.SignInRequest
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
