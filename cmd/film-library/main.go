@@ -16,6 +16,17 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// @title Film App API
+// @version 1.0.0
+// @description API Server for FilmLibrary Application
+
+// @host localhost:8080
+// @BasePath /
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
+
 const (
 	envLocal = "local"
 	envDev   = "dev"
@@ -61,12 +72,11 @@ func main() {
 	log.Info("Shutting down gracefully...")
 }
 
-// http://localhost:8080/films/search?actor=Рози Хантингтон-Уайтли&movie=Трансформеры 3: Тёмная сторона Луны
 func setupLogger(env string) *slog.Logger {
 	var log *slog.Logger
 	switch env {
 	case envLocal:
-		log = setupPrettySlog() // здесь преукрасили вывод логов для удобства
+		log = setupPrettySlog()
 	case envDev:
 		log = slog.New(
 			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),

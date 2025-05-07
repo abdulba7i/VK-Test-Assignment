@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"film-library/internal/utils/response"
 	"net/http"
 	"strings"
 
@@ -12,7 +13,7 @@ func RequireRole(secretKey []byte, requiredRole int) func(http.HandlerFunc) http
 		return func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
 			if authHeader == "" {
-				http.Error(w, "Missing token", http.StatusUnauthorized)
+				response.WriteJSONError(w, "Missing token", http.StatusUnauthorized)
 				return
 			}
 
@@ -21,25 +22,25 @@ func RequireRole(secretKey []byte, requiredRole int) func(http.HandlerFunc) http
 				return secretKey, nil
 			})
 			if err != nil || !token.Valid {
-				http.Error(w, "Invalid token", http.StatusUnauthorized)
+				response.WriteJSONError(w, "Invalid token", http.StatusUnauthorized)
 				return
 			}
 
 			claims, ok := token.Claims.(jwt.MapClaims)
 			if !ok {
-				http.Error(w, "Invalid claims", http.StatusUnauthorized)
+				response.WriteJSONError(w, "Invalid claims", http.StatusUnauthorized)
 				return
 			}
 
 			roleFloat, ok := claims["role"].(float64)
 			if !ok {
-				http.Error(w, "Role not found", http.StatusForbidden)
+				response.WriteJSONError(w, "Role not found", http.StatusForbidden)
 				return
 			}
 			role := int(roleFloat)
 
 			if role != requiredRole {
-				http.Error(w, "Forbidden", http.StatusForbidden)
+				response.WriteJSONError(w, "Forbidden", http.StatusForbidden)
 				return
 			}
 

@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"film-library/internal/utils/response"
 	"fmt"
 	"net/http"
 	"strings"
@@ -14,7 +15,7 @@ func RequireAuth(secretKey []byte) func(http.HandlerFunc) http.HandlerFunc {
 		return func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
 			if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
-				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+				response.WriteJSONError(w, "Unauthorized", http.StatusUnauthorized)
 				return
 			}
 
@@ -28,13 +29,13 @@ func RequireAuth(secretKey []byte) func(http.HandlerFunc) http.HandlerFunc {
 			})
 
 			if err != nil || !token.Valid {
-				http.Error(w, "Invalid token", http.StatusUnauthorized)
+				response.WriteJSONError(w, "Invalid token", http.StatusUnauthorized)
 				return
 			}
 
 			claims, ok := token.Claims.(jwt.MapClaims)
 			if !ok {
-				http.Error(w, "Invalid claims", http.StatusUnauthorized)
+				response.WriteJSONError(w, "Invalid claims", http.StatusUnauthorized)
 				return
 			}
 
