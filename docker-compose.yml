@@ -1,0 +1,31 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: vk-test-db
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - vk-test-assignment_postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"  # хост:контейнер
+
+  app:
+    container_name: vk-test-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - db
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+
+volumes:
+  vk-test-assignment_postgres_data:

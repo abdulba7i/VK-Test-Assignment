@@ -66,7 +66,7 @@ func (h *MovieHandler) HandleMovieDelete(w http.ResponseWriter, r *http.Request)
 // @Produce  json
 // @Param film body model.Film true "Create Film"
 // @Success 201 {object} model.Film
-// @Failure 400,403,404 {object} response.ErrorResponse
+// @Failure 400,403 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Failure default {object} response.ErrorResponse
 // @Router /film_create [post]
@@ -107,7 +107,7 @@ func (h *MovieHandler) CreateFilm(w http.ResponseWriter, r *http.Request) {
 // @Produce  json
 // @Param film body model.Film true "Update Film"
 // @Success 201 {object} model.Film
-// @Failure 400,403,404 {object} response.ErrorResponse
+// @Failure 400,403 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Failure default {object} response.ErrorResponse
 // @Router /film_update [put]
@@ -148,7 +148,7 @@ func (h *MovieHandler) UpdateFilm(w http.ResponseWriter, r *http.Request) {
 // @Produce  json
 // @Param id query int true "Film ID"
 // @Success 200 {object} map[string]string
-// @Failure 400,403,404 {object} response.ErrorResponse
+// @Failure 400,403 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Failure default {object} response.ErrorResponse
 // @Router /film_delete/{id} [delete]

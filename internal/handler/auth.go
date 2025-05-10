@@ -46,7 +46,7 @@ func (h *AuthHandler) HandleAuthPost(w http.ResponseWriter, r *http.Request) {
 // @Produce  json
 // @Param req body model.SignUpRequest true "Account info"
 // @Success 201 {object} map[string]string
-// @Failure 400,404,405 {object} response.ErrorResponse
+// @Failure 400,405 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Failure default {object} response.ErrorResponse
 // @Router /auth/sign_up [post]
@@ -88,7 +88,7 @@ func (h *AuthHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 // @Produce  json
 // @Param input body model.SignInRequest true "Account info"
 // @Success 200 {object} model.AuthResponse
-// @Failure 400,404,405 {object} response.ErrorResponse
+// @Failure 400,405 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Failure default {object} response.ErrorResponse
 // @Router /auth/sign_in [post]

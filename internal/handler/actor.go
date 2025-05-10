@@ -59,7 +59,7 @@ func (h *ActorHandler) HandleActorDelete(w http.ResponseWriter, r *http.Request)
 // @Produce  json
 // @Param actor body model.Actor true "Create Actor"
 // @Success 201 {object} model.Actor
-// @Failure 400,403,404 {object} response.ErrorResponse
+// @Failure 400,403 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Failure default {object} response.ErrorResponse
 // @Router /actor_create [post]
@@ -100,7 +100,7 @@ func (h *ActorHandler) CreateActor(w http.ResponseWriter, r *http.Request) {
 // @Produce  json
 // @Param actor body model.Actor true "Update Actor"
 // @Success 201 {object} model.Actor
-// @Failure 400,403,404 {object} response.ErrorResponse
+// @Failure 400,403 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Failure default {object} response.ErrorResponse
 // @Router /actor_update [put]
@@ -141,7 +141,7 @@ func (h *ActorHandler) UpdateActor(w http.ResponseWriter, r *http.Request) {
 // @Produce  json
 // @Param id query int true "Actor ID"
 // @Success 200 {object} map[string]string
-// @Failure 400,403,404 {object} response.ErrorResponse
+// @Failure 400,403 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Failure default {object} response.ErrorResponse
 // @Router /actor_delete/{id} [delete]

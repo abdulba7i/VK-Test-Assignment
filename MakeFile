@@ -1,0 +1,61 @@
+BINARY_NAME=film-library
+MAIN_FILE=cmd/film-library/main.go
+SWAG_DIR=./docs
+SWAG_BIN=$(GOPATH)/bin/swag
+DOCKER_IMAGE=film-library-app
+ENV_FILE=.env
+DB_URI=postgres://user:password@localhost:5432/dbname?sslmode=disable
+
+.PHONY: all build run clean swag docker docker-run test migrate-up migrate-down migrate-status mockgen
+
+all: build
+
+## Build Go binary
+build:
+	go build -o $(BINARY_NAME) $(MAIN_FILE)
+
+## Run the app locally
+run:
+	go run $(MAIN_FILE)
+
+## Remove binary and generated files
+clean:
+	rm -f $(BINARY_NAME)
+	rm -rf $(SWAG_DIR)/*.json $(SWAG_DIR)/*.yaml
+
+## Generate Swagger docs
+swag:
+	@if [ ! -x "$(SWAG_BIN)" ]; then \
+		echo "Installing swag..."; \
+		go install github.com/swaggo/swag/cmd/swag@latest; \
+	fi
+	swag init -g $(MAIN_FILE)
+
+## Build Docker image
+docker:
+	docker build -t $(DOCKER_IMAGE) .
+
+## Run Docker container
+docker-run:
+	docker run --rm -p 8080:8080 --env-file $(ENV_FILE) $(DOCKER_IMAGE)
+
+## Run tests
+test:
+	go test ./... -v
+
+## Run migrations up
+migrate-up:
+	goose -dir=db/migrations postgres $(DB_URI) up
+
+## Run migrations down
+migrate-down:
+	goose -dir=db/migrations postgres $(DB_URI) down
+
+## Show migration status
+migrate-status:
+	goose -dir=db/migrations postgres $(DB_URI) status
+
+## Generate mocks
+mockgen:
+	mockgen -source=internal/service/deps.go \
+		-destination=internal/service/mocks/mock.go -package=mock_service
