@@ -118,10 +118,6 @@ paths:
           description: Forbidden
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -162,10 +158,6 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
         "403":
           description: Forbidden
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "404":
-          description: Not Found
           schema:
             $ref: '#/definitions/response.ErrorResponse'
         "500":
@@ -209,10 +201,6 @@ paths:
           description: Forbidden
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -248,10 +236,6 @@ paths:
             $ref: '#/definitions/model.AuthResponse'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "404":
-          description: Not Found
           schema:
             $ref: '#/definitions/response.ErrorResponse'
         "405":
@@ -293,10 +277,6 @@ paths:
             type: object
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "404":
-          description: Not Found
           schema:
             $ref: '#/definitions/response.ErrorResponse'
         "405":
@@ -342,10 +322,6 @@ paths:
           description: Forbidden
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -388,10 +364,6 @@ paths:
           description: Forbidden
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -431,10 +403,6 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
         "403":
           description: Forbidden
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "404":
-          description: Not Found
           schema:
             $ref: '#/definitions/response.ErrorResponse'
         "500":
@@ -561,8 +529,8 @@ paths:
       tags:
       - actor_movie
 securityDefinitions:
-  ApiKeyAuth:
-    in: header
-    name: Authorization
-    type: apiKey
+  ApiKeyAuth: 
+    type: http
+    scheme: bearer
+    bearerFormat: JWT
 swagger: "2.0"
