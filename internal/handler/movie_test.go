@@ -184,7 +184,7 @@ func TestHandler_DeleteMovie(t *testing.T) {
 	}{
 		{
 			name:       "Ok",
-			queryParam: `id=0`,
+			queryParam: `0`,
 			mockBehavior: func(r *mock_service.MockMovie, id int) {
 				r.EXPECT().DeleteMovie(gomock.Any(), id).Return(nil)
 			},
@@ -193,14 +193,14 @@ func TestHandler_DeleteMovie(t *testing.T) {
 		},
 		{
 			name:                 "Wrong input ID",
-			queryParam:           `id=first`,
+			queryParam:           `first`,
 			mockBehavior:         func(r *mock_service.MockMovie, id int) {},
 			expectedStatusCode:   http.StatusBadRequest,
 			expectedResponseBody: `{"message": "Invalid film ID"}`,
 		},
 		{
 			name:       "Error Service",
-			queryParam: `id=0`,
+			queryParam: `0`,
 			mockBehavior: func(r *mock_service.MockMovie, id int) {
 				r.EXPECT().DeleteMovie(gomock.Any(), id).Return(errors.New("Failed to delete film"))
 			},
@@ -220,7 +220,7 @@ func TestHandler_DeleteMovie(t *testing.T) {
 			services := &service.Service{Movie: auth}
 			handler := NewMovieHandler(services)
 
-			req := httptest.NewRequest(http.MethodDelete, "/film_del/?"+tc.queryParam, nil)
+			req := httptest.NewRequest(http.MethodDelete, "/film_del/"+tc.queryParam, nil)
 			req.Header.Set("Content-Type", "application/json")
 
 			rr := httptest.NewRecorder()

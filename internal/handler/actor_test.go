@@ -235,7 +235,7 @@ func TestHandler_DeleteActor(t *testing.T) {
 	}{
 		{
 			name:       "Ok",
-			queryParam: `id=0`,
+			queryParam: `0`,
 			mockBehavior: func(r *mock_service.MockActor, id int) {
 				r.EXPECT().DeleteActor(gomock.Any(), id).Return(nil)
 			},
@@ -244,14 +244,14 @@ func TestHandler_DeleteActor(t *testing.T) {
 		},
 		{
 			name:                 "Wrong input ID",
-			queryParam:           `id=first`,
+			queryParam:           `first`,
 			mockBehavior:         func(r *mock_service.MockActor, id int) {},
 			expectedStatusCode:   http.StatusBadRequest,
 			expectedResponseBody: `{"message": "Invalid actor ID"}`,
 		},
 		{
 			name:       "Error",
-			queryParam: `id=0`,
+			queryParam: `0`,
 			mockBehavior: func(r *mock_service.MockActor, id int) {
 				r.EXPECT().DeleteActor(gomock.Any(), id).Return(errors.New("Failed to delete actor"))
 			},
@@ -271,7 +271,7 @@ func TestHandler_DeleteActor(t *testing.T) {
 			services := &service.Service{Actor: auth}
 			handler := NewActorHandler(services)
 
-			req := httptest.NewRequest(http.MethodDelete, "/actor_del/?"+tc.queryParam, nil)
+			req := httptest.NewRequest(http.MethodDelete, "/actor_del/"+tc.queryParam, nil)
 			req.Header.Set("Content-Type", "application/json")
 
 			rr := httptest.NewRecorder()

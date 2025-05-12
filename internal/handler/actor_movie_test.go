@@ -25,18 +25,23 @@ func TestHandler_GetActorMovies(t *testing.T) {
 		{
 			name: "OK",
 			mockBehavior: func(r *mock_service.MockActorMovie) {
-				r.EXPECT().GetAllActorWithFilms(gomock.Any()).Return(map[int]model.ActorWithFilms{}, nil)
+				// Возвращаем мапу, а не слайс!
+				r.EXPECT().GetAllActorWithFilms(gomock.Any()).Return(
+					map[int]model.ActorWithFilms{}, nil)
 			},
 			expectedStatusCode:   http.StatusOK,
-			expectedResponseBody: `{}`,
+			expectedResponseBody: `[]`, // Хэндлер преобразует мапу в массив
 		},
 		{
 			name: "Service Error",
 			mockBehavior: func(r *mock_service.MockActorMovie) {
-				r.EXPECT().GetAllActorWithFilms(gomock.Any()).Return(map[int]model.ActorWithFilms{}, errors.New("error"))
+				r.EXPECT().GetAllActorWithFilms(gomock.Any()).Return(
+					nil,
+					errors.New("error"),
+				)
 			},
 			expectedStatusCode:   http.StatusInternalServerError,
-			expectedResponseBody: `{"message": "error"}`,
+			expectedResponseBody: `{"message":"error"}`,
 		},
 	}
 
